@@ -30,7 +30,7 @@ public class Course extends BaseEntity {
     Double price;
     Double discount;
     Boolean isDraft;
-    List<String> review;
+    List<String> reviews;
     List<String> targetAudiences;
     List<String> requirements;
 }

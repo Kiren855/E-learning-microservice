@@ -1,4 +1,4 @@
-package com.sunny.microservices.course.dto.response;
+package com.sunny.microservices.course.dto.DTO;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -8,6 +8,8 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class LessonDetailResponse {
-    String videoUrl;
+public class ReviewDetail {
+    String username;
+    Integer rating;
+    String content;
 }

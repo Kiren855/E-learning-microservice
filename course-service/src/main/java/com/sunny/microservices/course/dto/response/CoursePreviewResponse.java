@@ -1,6 +1,7 @@
 package com.sunny.microservices.course.dto.response;
 
 
+import com.sunny.microservices.course.dto.DTO.ReviewDetail;
 import com.sunny.microservices.course.dto.DTO.SectionPreview;
 import com.sunny.microservices.course.dto.DTO.TopicPreview;
 import com.sunny.microservices.course.entity.Section;
@@ -29,7 +30,7 @@ public class CoursePreviewResponse  implements Serializable {
     List<String> language;
     Double price;
     Double discount;
-    List<String> review;
+    List<ReviewDetail> reviews;
     List<String> targetAudiences;
     List<String> requirements;
     Double duration;

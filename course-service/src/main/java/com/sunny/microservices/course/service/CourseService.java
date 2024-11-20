@@ -1,6 +1,7 @@
 package com.sunny.microservices.course.service;
 
 import com.sunny.microservices.course.client.AzureFileStorageClient;
+import com.sunny.microservices.course.dto.DTO.ReviewDetail;
 import com.sunny.microservices.course.dto.DTO.SectionDetail;
 import com.sunny.microservices.course.dto.DTO.SectionPreview;
 import com.sunny.microservices.course.dto.DTO.TopicPreview;
@@ -28,6 +29,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
+import java.util.OptionalDouble;
 
 @Service
 @Slf4j
@@ -38,6 +40,7 @@ public class CourseService {
     TopicService topicService;
     SectionService sectionService;
     AzureFileStorageClient azureFileStorageClient;
+    ReviewService reviewService;
 
     @Value("${azure.blob.doc-container}")
     @NonFinal
@@ -49,9 +52,8 @@ public class CourseService {
 
         List<TopicPreview> topics = topicService.findTopicsByIds(course.getTopic());
         List<SectionPreview> sections = sectionService.findSectionsByIds(course.getSections());
-
+        List<ReviewDetail> reviews = reviewService.findReviewsById(course.getReviews());
         Double totalDuration = sections.stream().mapToDouble(SectionPreview::getDuration).sum();
-
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         Jwt jwt = (Jwt) authentication.getPrincipal();
@@ -70,7 +72,7 @@ public class CourseService {
                 .language(course.getLanguage())
                 .price(course.getPrice())
                 .discount(course.getDiscount())
-                .review(course.getReview())
+                .reviews(reviews)
                 .targetAudiences(course.getTargetAudiences())
                 .requirements(course.getRequirements())
                 .duration(totalDuration).build();
@@ -95,7 +97,7 @@ public class CourseService {
                     .isDraft(Boolean.TRUE)
                     .discount(0.0)
                     .rating(0.0)
-                    .review(List.of())
+                    .reviews(List.of())
                     .sections(List.of()).build();
 
             courseRepository.save(course);
