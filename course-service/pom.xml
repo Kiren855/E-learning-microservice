@@ -4,9 +4,8 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>com.sunny.microservices</groupId>
-		<artifactId>spring-boot-3-microservices</artifactId>
+		<artifactId>e-learning-microservices</artifactId>
 		<version>1.0-SNAPSHOT</version>
-		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<artifactId>course-service</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
@@ -103,6 +102,13 @@
 		<dependency>
 			<groupId>com.azure.spring</groupId>
 			<artifactId>spring-cloud-azure-starter-keyvault</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.sunny.microservices</groupId>
+			<artifactId>base-domain</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+			<scope>compile</scope>
+			<classifier>qa</classifier>
 		</dependency>
 	</dependencies>
 	<dependencyManagement>

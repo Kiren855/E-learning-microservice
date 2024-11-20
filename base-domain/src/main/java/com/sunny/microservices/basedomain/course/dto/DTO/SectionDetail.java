@@ -1,20 +1,17 @@
-package com.sunny.microservices.course.dto.DTO;
-
+package com.sunny.microservices.basedomain.course.dto.DTO;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.io.Serializable;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class LessonPreview  implements Serializable {
-    String id;
+public class SectionDetail {
     String name;
-    String type;
-    String type_id;
+    List<LessonDetail> lessons;
     Double duration;
 }

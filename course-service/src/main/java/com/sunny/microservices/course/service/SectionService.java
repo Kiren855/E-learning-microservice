@@ -1,8 +1,8 @@
 package com.sunny.microservices.course.service;
 
-import com.sunny.microservices.course.dto.DTO.LessonDetail;
+import com.sunny.microservices.basedomain.course.dto.DTO.LessonDetail;
+import com.sunny.microservices.basedomain.course.dto.DTO.SectionDetail;
 import com.sunny.microservices.course.dto.DTO.LessonPreview;
-import com.sunny.microservices.course.dto.DTO.SectionDetail;
 import com.sunny.microservices.course.dto.DTO.SectionPreview;
 import com.sunny.microservices.course.dto.request.SectionRequest;
 import com.sunny.microservices.course.entity.Course;
@@ -23,6 +23,7 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -92,14 +93,15 @@ public class SectionService {
     public List<SectionPreview> findSectionsByIds(List<String> sectionIds) {
         List<Section> sections = sectionRepository.findAllById(sectionIds);
 
-        return sections.stream().map(section -> {
+        return sections.stream()
+                .sorted(Comparator.comparingInt(Section::getPartNumber))
+                .map(section -> {
             List<Lesson> lessons = lessonService.findLessonsByIds(section.getLessons());
 
             List<LessonPreview> lessonPreviews = lessonService.mapToLessonPreviews(lessons);
 
             return SectionPreview.builder()
                     .name(section.getName())
-                    .partNumber(section.getPartNumber())
                     .lessons(lessonPreviews)
                     .duration(section.getDuration())
                     .build();
@@ -109,7 +111,9 @@ public class SectionService {
     public List<SectionDetail> findSectionsDetailByIds(List<String> ids) {
         List<Section> sections = sectionRepository.findAllById(ids);
 
-        return sections.stream().map(section -> {
+        return sections.stream()
+                .sorted(Comparator.comparingInt(Section::getPartNumber))
+                .map(section -> {
             List<Lesson> lessons = lessonService.findLessonsByIds(section.getLessons());
             List<LessonDetail> lessonDetails = lessonService.mapToLessonDetails(lessons);
 
