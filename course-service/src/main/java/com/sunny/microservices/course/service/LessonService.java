@@ -2,6 +2,7 @@ package com.sunny.microservices.course.service;
 
 
 import com.sunny.microservices.course.client.AzureFileStorageClient;
+import com.sunny.microservices.course.dto.DTO.LessonDetail;
 import com.sunny.microservices.course.dto.DTO.LessonPreview;
 import com.sunny.microservices.course.dto.request.DocLessonRequest;
 import com.sunny.microservices.course.dto.request.ExamRequest;
@@ -21,6 +22,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -261,7 +263,32 @@ public class LessonService {
                 })
                 .collect(Collectors.toList());
     }
+
+    public List<LessonDetail> mapToLessonDetails(List<Lesson> lessons) {
+        return lessons.stream()
+                .map(lesson -> {
+                    LessonDetail.LessonDetailBuilder builder = LessonDetail.builder()
+                            .id(lesson.getId())
+                            .name(lesson.getName())
+                            .type(lesson.getType())
+                            .type_id(lesson.getType_id())
+                            .partNumber(lesson.getPartNumber());
+
+                    if ("VIDEO".equals(lesson.getType())) {
+                        videoRepository.findById(lesson.getType_id()).ifPresent(video -> {
+                            builder.duration(video.getDuration());
+                        });
+                    }
+
+                    return builder.build();
+                })
+                .collect(Collectors.toList());
+    }
     private String extractFileName(String blobUrl) {
         return blobUrl.substring(blobUrl.lastIndexOf("/") + 1);
+    }
+
+    public ResponseEntity<?> getLessonDetail(String lessonId) {
+
     }
 }

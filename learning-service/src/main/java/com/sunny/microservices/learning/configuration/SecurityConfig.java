@@ -1,4 +1,4 @@
-package com.sunny.microservices.course.configuration;
+package com.sunny.microservices.learning.configuration;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,8 +14,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableMethodSecurity
 public class SecurityConfig {
     private final String[] PUBLIC_ENDPOINTS = {
-        "/topics/**",
-        "/internal/**"
+    "/courses/**"
     };
 
     @Bean

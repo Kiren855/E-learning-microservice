@@ -1,6 +1,8 @@
 package com.sunny.microservices.course.service;
 
+import com.sunny.microservices.course.dto.DTO.LessonDetail;
 import com.sunny.microservices.course.dto.DTO.LessonPreview;
+import com.sunny.microservices.course.dto.DTO.SectionDetail;
 import com.sunny.microservices.course.dto.DTO.SectionPreview;
 import com.sunny.microservices.course.dto.request.SectionRequest;
 import com.sunny.microservices.course.entity.Course;
@@ -99,6 +101,21 @@ public class SectionService {
                     .name(section.getName())
                     .partNumber(section.getPartNumber())
                     .lessons(lessonPreviews)
+                    .duration(section.getDuration())
+                    .build();
+        }).collect(Collectors.toList());
+    }
+
+    public List<SectionDetail> findSectionsDetailByIds(List<String> ids) {
+        List<Section> sections = sectionRepository.findAllById(ids);
+
+        return sections.stream().map(section -> {
+            List<Lesson> lessons = lessonService.findLessonsByIds(section.getLessons());
+            List<LessonDetail> lessonDetails = lessonService.mapToLessonDetails(lessons);
+
+            return SectionDetail.builder()
+                    .name(section.getName())
+                    .lessons(lessonDetails)
                     .duration(section.getDuration())
                     .build();
         }).collect(Collectors.toList());

@@ -1,9 +1,11 @@
 package com.sunny.microservices.course.service;
 
 import com.sunny.microservices.course.client.AzureFileStorageClient;
+import com.sunny.microservices.course.dto.DTO.SectionDetail;
 import com.sunny.microservices.course.dto.DTO.SectionPreview;
 import com.sunny.microservices.course.dto.DTO.TopicPreview;
 import com.sunny.microservices.course.dto.request.CourseRequest;
+import com.sunny.microservices.course.dto.response.CourseDetailResponse;
 import com.sunny.microservices.course.dto.response.CoursePreviewResponse;
 import com.sunny.microservices.course.entity.Course;
 import com.sunny.microservices.course.exception.AppException;
@@ -136,4 +138,16 @@ public class CourseService {
         }
         courseRepository.delete(course);
     }
+
+    public CourseDetailResponse getCourseDetail(String courseId) {
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
+
+        List<SectionDetail> sections = sectionService.findSectionsDetailByIds(course.getSections());
+
+        return CourseDetailResponse.builder()
+                .id(course.getId())
+                .sections(sections).build();
+    }
+
 }
