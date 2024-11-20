@@ -1,5 +1,6 @@
 package com.sunny.microservices.course.service;
 
+import com.sunny.microservices.basedomain.course.dto.DTO.TopicDetail;
 import com.sunny.microservices.course.dto.DTO.SectionPreview;
 import com.sunny.microservices.course.dto.DTO.TopicPreview;
 import com.sunny.microservices.course.dto.request.TopicRequest;
@@ -51,5 +52,15 @@ public class TopicService {
                 .map(topic -> new TopicPreview( topic.getName()))
                 .collect(Collectors.toList());
     }
+
+    public List<TopicDetail> findTopicsById(List<String> topicIds) {
+        List<Topic> topics =  topicRepository.findAllById(topicIds);
+
+        return topics.stream()
+                .map(topic -> new TopicDetail( topic.getName()))
+                .collect(Collectors.toList());
+    }
+
+
 }
 

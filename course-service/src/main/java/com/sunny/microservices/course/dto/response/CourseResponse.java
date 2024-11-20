@@ -1,14 +1,8 @@
 package com.sunny.microservices.course.dto.response;
 
-import com.sunny.microservices.course.entity.Section;
-import com.sunny.microservices.course.entity.Topic;
+import com.sunny.microservices.basedomain.course.dto.DTO.TopicDetail;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.bson.types.ObjectId;
-import org.springframework.data.annotation.Id;
-import org.springframework.format.annotation.DateTimeFormat;
-
-import java.time.LocalDate;
 import java.util.List;
 
 @Data
@@ -20,17 +14,6 @@ public class  CourseResponse {
     String id;
     String image;
     String title;
-    String subTitle;
-    String description;
-    List<Topic> topic;
-    String instructor;
-    List<Section> sections;
-    Double rating;
-    List<String> language;
-    Double price;
-    Double discount;
+    List<TopicDetail> topic;
     Boolean isDraft;
-    List<String> review;
-    List<String> targetAudiences;
-    List<String> requirements;
 }

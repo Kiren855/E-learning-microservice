@@ -6,10 +6,10 @@ import com.sunny.microservices.user.dto.identity.UserCreationParam;
 import com.sunny.microservices.user.dto.request.LoginRequest;
 import com.sunny.microservices.user.dto.request.RegistrationRequest;
 import com.sunny.microservices.user.dto.request.TokenRequest;
+import com.sunny.microservices.user.entity.User;
 import com.sunny.microservices.user.exception.AppException;
 import com.sunny.microservices.user.exception.ErrorCode;
 import com.sunny.microservices.user.exception.ErrorNormalizer;
-import com.sunny.microservices.user.mapper.UserMapper;
 import com.sunny.microservices.user.repository.IdentityClient;
 import com.sunny.microservices.user.repository.UserRepository;
 import feign.FeignException;
@@ -20,10 +20,7 @@ import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import java.util.List;
 
 @Service
@@ -34,7 +31,6 @@ public class IdentityService {
     UserRepository userRepository;
     IdentityClient identityClient;
     ErrorNormalizer errorNormalizer;
-    UserMapper userMapper;
     @Value("${idp.client-id}")
     @NonFinal
     String clientId;
@@ -70,7 +66,14 @@ public class IdentityService {
 
             String userId = extractUserId(creationResponse);
 
-            var profile = userMapper.toProfile(request);
+            User profile = User.builder()
+                    .email(request.getEmail())
+                    .username(request.getUsername())
+                    .firstName(request.getFirstName())
+                    .lastName(request.getLastName())
+                    .dob(request.getDob())
+                    .build();
+
             profile.setUserId(userId);
             profile.setGoogleId("");
             profile.setAvatar("https://sunnystorage855.blob.core.windows.net/avatar-container/avatar_user.jpg");

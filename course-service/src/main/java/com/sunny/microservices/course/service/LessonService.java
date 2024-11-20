@@ -1,8 +1,8 @@
 package com.sunny.microservices.course.service;
 
 
+import com.sunny.microservices.basedomain.course.dto.DTO.LessonDetail;
 import com.sunny.microservices.course.client.AzureFileStorageClient;
-import com.sunny.microservices.course.dto.DTO.LessonDetail;
 import com.sunny.microservices.course.dto.DTO.LessonPreview;
 import com.sunny.microservices.course.dto.request.DocLessonRequest;
 import com.sunny.microservices.course.dto.request.ExamRequest;
@@ -22,10 +22,10 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -245,13 +245,13 @@ public class LessonService {
 
     public List<LessonPreview> mapToLessonPreviews(List<Lesson> lessons) {
         return lessons.stream()
+                .sorted(Comparator.comparingInt(Lesson::getPartNumber))
                 .map(lesson -> {
                     LessonPreview.LessonPreviewBuilder builder = LessonPreview.builder()
                             .id(lesson.getId())
                             .name(lesson.getName())
                             .type(lesson.getType())
-                            .type_id(lesson.getType_id())
-                            .partNumber(lesson.getPartNumber());
+                            .type_id(lesson.getType_id());
 
                     if ("VIDEO".equals(lesson.getType())) {
                         videoRepository.findById(lesson.getType_id()).ifPresent(video -> {
@@ -266,6 +266,7 @@ public class LessonService {
 
     public List<LessonDetail> mapToLessonDetails(List<Lesson> lessons) {
         return lessons.stream()
+                .sorted(Comparator.comparingInt(Lesson::getPartNumber))
                 .map(lesson -> {
                     LessonDetail.LessonDetailBuilder builder = LessonDetail.builder()
                             .id(lesson.getId())

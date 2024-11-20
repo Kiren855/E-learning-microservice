@@ -48,3 +48,6 @@ logging:
     org:
       springframework:
         cache: DEBUG
+
+user-service:
+  url: http://localhost:8080/user

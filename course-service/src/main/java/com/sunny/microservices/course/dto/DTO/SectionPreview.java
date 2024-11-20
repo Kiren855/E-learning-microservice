@@ -16,7 +16,6 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class SectionPreview  implements Serializable {
     String name;
-    Integer partNumber;
     List<LessonPreview> lessons;
     Double duration;
 }

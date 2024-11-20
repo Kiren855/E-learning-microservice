@@ -7,6 +7,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -30,8 +31,11 @@ public class Enrollment {
     @AllArgsConstructor
     @FieldDefaults(level = AccessLevel.PRIVATE)
     public static class Progress {
-        List<String> completedLessons;
+        Map<String, Boolean> completedLessons;
         Integer totalLessons;
         Double completionRate;
+        public boolean isLessonCompleted(String lessonId) {
+            return completedLessons.getOrDefault(lessonId, false);
+        }
     }
 }
