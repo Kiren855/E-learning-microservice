@@ -1,7 +1,9 @@
 package com.sunny.microservices.course.controller;
 
 import com.sunny.microservices.course.dto.ApiResponse;
+import com.sunny.microservices.course.dto.request.DocLessonRequest;
 import com.sunny.microservices.course.dto.request.ExamRequest;
+import com.sunny.microservices.course.dto.request.VideoLessonRequest;
 import com.sunny.microservices.course.service.LessonService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -24,14 +26,9 @@ public class LessonController {
     @PostMapping("/video/{sectionId}")
     @PreAuthorize("hasRole('INSTRUCTOR')")
     public ResponseEntity<?> createVideoLesson(@PathVariable String sectionId,
-                                               @RequestParam("name") String name,
-                                               @RequestParam("type") String type,
-                                               @RequestParam("partNumber") Integer partNumber,
-                                               @RequestParam("videoFile") MultipartFile videoFile,
-                                               @RequestParam("thumbnailFile") MultipartFile thumbnailFail,
-                                               @RequestParam("duration") Double duration) {
+                                               @ModelAttribute VideoLessonRequest request) {
         ApiResponse<String> response = ApiResponse.<String>builder()
-                .message(lessonService.createVideoLesson(sectionId, name, type, partNumber, videoFile, thumbnailFail, duration))
+                .message(lessonService.createVideoLesson(sectionId, request))
                .build();
 
       return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -40,18 +37,15 @@ public class LessonController {
     @PostMapping("/doc/{sectionId}")
     @PreAuthorize("hasRole('INSTRUCTOR')")
     public ResponseEntity<?> createDocLesson(@PathVariable String sectionId,
-                                               @RequestParam("name") String name,
-                                               @RequestParam("type") String type,
-                                               @RequestParam("partNumber") Integer partNumber,
-                                               @RequestParam("docFile") MultipartFile docFile) {
+                                             @ModelAttribute DocLessonRequest request) {
         ApiResponse<String> response = ApiResponse.<String>builder()
-                .message(lessonService.createDocLesson(sectionId, name, type, partNumber, docFile))
+                .message(lessonService.createDocLesson(sectionId, request))
                 .build();
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @PostMapping("/exam/{sectionsId}")
+    @PostMapping("/exam/{sectionId}")
     @PreAuthorize("hasRole('INSTRUCTOR')")
     public ResponseEntity<?> createExamLesson(@PathVariable String sectionId, @RequestBody ExamRequest request) {
         ApiResponse<String> response = ApiResponse.<String>builder()

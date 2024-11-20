@@ -2,7 +2,10 @@ package com.sunny.microservices.course.service;
 
 
 import com.sunny.microservices.course.client.AzureFileStorageClient;
+import com.sunny.microservices.course.dto.DTO.LessonPreview;
+import com.sunny.microservices.course.dto.request.DocLessonRequest;
 import com.sunny.microservices.course.dto.request.ExamRequest;
+import com.sunny.microservices.course.dto.request.VideoLessonRequest;
 import com.sunny.microservices.course.entity.*;
 import com.sunny.microservices.course.exception.AppException;
 import com.sunny.microservices.course.exception.ErrorCode;
@@ -50,23 +53,33 @@ public class LessonService {
     @NonFinal
     String thumbnailContainer;
 
-    public String createVideoLesson(String sectionId, String name, String type, Integer partNumber, MultipartFile videoFile, MultipartFile thumbnailFile, Double duration)  {
+    public String createVideoLesson(String sectionId, VideoLessonRequest request)  {
         try {
             Section section = sectionRepository.findById(sectionId).orElseThrow(
                     () -> new AppException(ErrorCode.SECTION_NOT_FOUND)
             );
 
             Lesson lesson = Lesson.builder()
-                    .name(name)
-                    .type(type)
-                    .partNumber(partNumber)
+                    .name(request.getName())
+                    .type("VIDEO")
+                    .partNumber(request.getPartNumber())
                     .comments(new ArrayList<>()).build();
 
-            String pathVideo = azureFileStorageClient.uploadFile(videoContainer, Objects.requireNonNull(videoFile.getOriginalFilename()), videoFile.getInputStream(), videoFile.getSize());
-            String pathThumbnail = azureFileStorageClient.uploadFile(thumbnailContainer, Objects.requireNonNull(thumbnailFile.getOriginalFilename()), thumbnailFile.getInputStream(), thumbnailFile.getSize());
+            String pathVideo = azureFileStorageClient.uploadFile(videoContainer,
+                    Objects.requireNonNull(request.getVideoFile().getOriginalFilename()),
+                    request.getVideoFile().getInputStream(),
+                    request.getVideoFile().getSize());
+
+            log.info("path video {}", pathVideo);
+
+            String pathThumbnail = azureFileStorageClient.uploadFile(thumbnailContainer,
+                    Objects.requireNonNull(request.getThumbnailFile().getOriginalFilename()),
+                    request.getThumbnailFile().getInputStream(),
+                    request.getThumbnailFile().getSize());
+
             Video video = Video.builder()
                     .videoUrl(pathVideo)
-                    .duration(duration)
+                    .duration(request.getDuration())
                     .thumbnailUrl(pathThumbnail)
                     .build();
 
@@ -74,7 +87,7 @@ public class LessonService {
             lesson.setType_id(video.getId());
             lessonRepository.save(lesson);
 
-            Double newDuraton = section.getDuration() + duration;
+            Double newDuraton = section.getDuration() + request.getDuration();
             mongoTemplate.updateFirst(
                     new Query(Criteria.where("_id").is(sectionId)),
                     new Update()
@@ -89,19 +102,18 @@ public class LessonService {
         }
     }
 
-    public String createDocLesson(String sectionId, String name, String type, Integer partNumber, MultipartFile docFile) {
+    public String createDocLesson(String sectionId, DocLessonRequest request) {
         try {
             sectionRepository.findById(sectionId).orElseThrow(
                     () -> new AppException(ErrorCode.SECTION_NOT_FOUND)
             );
 
             Lesson lesson = Lesson.builder()
-                    .name(name)
-                    .type(type)
-                    .partNumber(partNumber)
-                    .comments(new ArrayList<>()).build();
+                    .name(request.getName())
+                    .type("DOC")
+                    .partNumber(request.getPartNumber()).build();
 
-            String pathFile = azureFileStorageClient.uploadFile(docContainer, Objects.requireNonNull(docFile.getOriginalFilename()), docFile.getInputStream(), docFile.getSize());
+            String pathFile = azureFileStorageClient.uploadFile(docContainer, Objects.requireNonNull(request.getDocFile().getOriginalFilename()), request.getDocFile().getInputStream(), request.getDocFile().getSize());
 
             Doc doc = Doc.builder()
                     .fileUrl(pathFile).build();
@@ -130,7 +142,7 @@ public class LessonService {
                 .name(request.getName())
                 .type("EXAM")
                 .partNumber(request.getPartNumber())
-                .comments(new ArrayList<>()).build();
+                .build();
 
         Exam exam = Exam.builder()
                 .title(request.getTitle())
@@ -168,4 +180,30 @@ public class LessonService {
                         .build()
         ).collect(Collectors.toList());
     }
+
+    public List<Lesson> findLessonsByIds(List<String> lessonIds) {
+        return lessonRepository.findAllById(lessonIds);
+    }
+
+    public List<LessonPreview> mapToLessonPreviews(List<Lesson> lessons) {
+        return lessons.stream()
+                .map(lesson -> {
+                    LessonPreview.LessonPreviewBuilder builder = LessonPreview.builder()
+                            .id(lesson.getId())
+                            .name(lesson.getName())
+                            .type(lesson.getType())
+                            .type_id(lesson.getType_id())
+                            .partNumber(lesson.getPartNumber());
+
+                    if ("VIDEO".equals(lesson.getType())) {
+                        videoRepository.findById(lesson.getType_id()).ifPresent(video -> {
+                            builder.duration(video.getDuration());
+                        });
+                    }
+
+                    return builder.build();
+                })
+                .collect(Collectors.toList());
+    }
+
 }

@@ -14,12 +14,12 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: https://bugbuster.click/realms/sunny
-  cache:
-    type: redis
-    redis:
-      host: localhost
-      port: 6379
-      timeout: 5000
+
+  redis:
+    host: elearning.redis.cache.windows.net
+    port: 6380
+    password: ""
+    ssl: true
 
   cloud:
     azure:
@@ -42,3 +42,9 @@ azure:
     video-container: video-lesson-container
     doc-container: doc-lesson-container
     thumbnail-container: thumbnail-container
+
+logging:
+  level:
+    org:
+      springframework:
+        cache: DEBUG
