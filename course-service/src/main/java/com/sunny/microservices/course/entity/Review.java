@@ -17,6 +17,6 @@ public class Review extends BaseEntity{
     @Id
     String id;
     String userId;
-    Double rating;
+    Integer rating;
     String content;
 }

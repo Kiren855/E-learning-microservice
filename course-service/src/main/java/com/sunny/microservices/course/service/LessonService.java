@@ -288,7 +288,7 @@ public class LessonService {
         return blobUrl.substring(blobUrl.lastIndexOf("/") + 1);
     }
 
-    public ResponseEntity<?> getLessonDetail(String lessonId) {
-
-    }
+//    public ResponseEntity<?> getLessonDetail(String lessonId) {
+//
+//    }
 }

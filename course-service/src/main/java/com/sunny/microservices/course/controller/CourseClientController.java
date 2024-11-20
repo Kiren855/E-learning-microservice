@@ -34,12 +34,12 @@ public class CourseClientController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    @GetMapping("/learn/{lessonId}")
-    public ResponseEntity<?> getLesson(@PathVariable String lessonId) {
-        ApiResponse<CourseDetailResponse> response = ApiResponse.<CourseDetailResponse>builder()
-                .message("lấy thông tin bài hc thành công")
-                .result(lessonService.getLessonDetail(lessonId)).build();
-
-        return ResponseEntity.status(HttpStatus.OK).body(response);
-    }
+//    @GetMapping("/learn/{lessonId}")
+//    public ResponseEntity<?> getLesson(@PathVariable String lessonId) {
+//        ApiResponse<CourseDetailResponse> response = ApiResponse.<CourseDetailResponse>builder()
+//                .message("lấy thông tin bài hc thành công")
+//                .result(lessonService.getLessonDetail(lessonId)).build();
+//
+//        return ResponseEntity.status(HttpStatus.OK).body(response);
+//    }
 }

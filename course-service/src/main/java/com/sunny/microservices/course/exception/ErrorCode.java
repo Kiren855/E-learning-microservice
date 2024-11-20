@@ -32,7 +32,8 @@ public enum ErrorCode {
     FILE_CANNOT_DELETE(2020, "Không thể xoá file khỏi hệ thống", HttpStatus.BAD_REQUEST),
     VIDEO_NOT_FOUND(2021, "Không thể tìm thấy bài giảng Video", HttpStatus.BAD_REQUEST),
     DOC_NOT_FOUND(2022, "Không thể tìm thấy tài liệu bài giảng", HttpStatus.BAD_REQUEST),
-    EXAM_NOT_FOUND(2023, "Không thể tìm thấy bài kiểm tra", HttpStatus.BAD_REQUEST)
+    EXAM_NOT_FOUND(2023, "Không thể tìm thấy bài kiểm tra", HttpStatus.BAD_REQUEST),
+    REVIEW_NOT_FOUND(2024, "Không tìm thấy đánh giá", HttpStatus.BAD_REQUEST)
     ;
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
         this.code = code;
