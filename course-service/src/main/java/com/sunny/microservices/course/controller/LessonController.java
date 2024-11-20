@@ -3,6 +3,7 @@ package com.sunny.microservices.course.controller;
 import com.sunny.microservices.course.dto.ApiResponse;
 import com.sunny.microservices.course.dto.request.DocLessonRequest;
 import com.sunny.microservices.course.dto.request.ExamRequest;
+import com.sunny.microservices.course.dto.request.LessonRequest;
 import com.sunny.microservices.course.dto.request.VideoLessonRequest;
 import com.sunny.microservices.course.service.LessonService;
 import lombok.AccessLevel;
@@ -52,5 +53,24 @@ public class LessonController {
                 .message(lessonService.createExam(sectionId, request)).build();
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+
+    @PutMapping("/{lessonId}")
+    @PreAuthorize("hasRole('INSTRUCTOR') or hasRole('ADMIN')")
+    public ResponseEntity<?> updateLesson(@PathVariable String lessonId, @RequestBody LessonRequest request) {
+        ApiResponse<String> response = ApiResponse.<String>builder()
+                .message(lessonService.updateLesson(lessonId, request)).build();
+
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @DeleteMapping
+    @PreAuthorize("hasRole('INSTRUCTOR') or hasRole('ADMIN')")
+    public ResponseEntity<?> deleteLesson(@RequestParam String sectionId, @RequestParam String lessonId) {
+        ApiResponse<String> response = ApiResponse.<String>builder()
+                .message(lessonService.deleteLesson(sectionId, lessonId)).build();
+
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }

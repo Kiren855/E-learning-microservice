@@ -20,9 +20,8 @@ package com.sunny.microservices.course.configuration;
 //@Configuration
 //@EnableCaching
 public class CacheConfig {
-//
 //    @Bean
-//    public CacheManager cacheManager(RedisConnectionFactory connectionFactory) {
+//    public CacheManager(RedisConnectionFactory connectionFactory) {
 //        RedisCacheConfiguration cacheConfig = RedisCacheConfiguration.defaultCacheConfig()
 //                .entryTtl(Duration.ofMinutes(30))
 //                .disableCachingNullValues();

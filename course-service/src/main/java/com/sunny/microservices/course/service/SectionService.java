@@ -70,7 +70,7 @@ public class SectionService {
                 var section = sectionRepository.findById(sectionId)
                         .orElseThrow(() -> new AppException(ErrorCode.SECTION_NOT_FOUND));
 
-                if (section.getLessons() == null || section.getLessons().isEmpty()) {
+                if (section.getLessons().isEmpty()) {
                     mongoTemplate.updateFirst(
                             new Query(Criteria.where("_id").is(courseId)),
                             new Update().pull("sections", new ObjectId(sectionId)),

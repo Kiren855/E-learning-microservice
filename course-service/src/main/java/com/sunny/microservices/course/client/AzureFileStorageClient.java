@@ -54,4 +54,21 @@ public class AzureFileStorageClient implements FileStorageClient {
             default -> "application/octet-stream";
         };
     }
+
+    @Override
+    public void deleteFile(String containerName, String fileName) {
+        try {
+            BlobContainerClient blobContainerClient = blobServiceClient.getBlobContainerClient(containerName);
+
+            BlobClient blobClient = blobContainerClient.getBlobClient(fileName);
+
+            if (blobClient.exists()) {
+                blobClient.delete();
+            } else {
+                throw new AppException(ErrorCode.FILE_NOT_FOUND);
+            }
+        } catch (BlobStorageException e) {
+            throw new AppException(ErrorCode.FILE_CANNOT_DELETE);
+        }
+    }
 }
