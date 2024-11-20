@@ -29,5 +29,22 @@ public class SectionController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @PutMapping("/{sectionId}")
+    @PreAuthorize("hasRole('INSTRUCTOR') or hasRole('ADMIN')")
+    public ResponseEntity<?> updateSection(@PathVariable String sectionId, SectionRequest request) {
+        ApiResponse<String> response = ApiResponse.<String>builder()
+                .message(sectionService.updateSection(sectionId, request)).build();
+
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @DeleteMapping
+    @PreAuthorize("hasRole('INSTRUCTOR') or hasRole('ADMIN')")
+    public ResponseEntity<?> deleteSection(@RequestParam String courseId, @RequestParam String sectionId) {
+        ApiResponse<String> response = ApiResponse.<String>builder()
+                .message(sectionService.deleteSection(courseId, sectionId)).build();
+
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
 
 }

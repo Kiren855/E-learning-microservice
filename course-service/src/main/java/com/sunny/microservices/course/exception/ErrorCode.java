@@ -27,7 +27,13 @@ public enum ErrorCode {
     QUESTION_REQUIRED(2015, "Cần có thông tin về câu hỏi", HttpStatus.BAD_REQUEST),
     OPTION_REQUIRED(2016, "Cần phải có nội dung cho câu hỏi", HttpStatus.BAD_REQUEST),
     NAME_REQUIRED(2017, "Cần nhập tên phần này", HttpStatus.BAD_REQUEST),
-    PART_NUMBER_REQUIRED(2018, "Cần nhập số thứ tự", HttpStatus.BAD_REQUEST);
+    PART_NUMBER_REQUIRED(2018, "Cần nhập số thứ tự", HttpStatus.BAD_REQUEST),
+    FILE_NOT_FOUND(2019, "Không tìm thấy file cần xoá trên cloud", HttpStatus.BAD_REQUEST),
+    FILE_CANNOT_DELETE(2020, "Không thể xoá file khỏi hệ thống", HttpStatus.BAD_REQUEST),
+    VIDEO_NOT_FOUND(2021, "Không thể tìm thấy bài giảng Video", HttpStatus.BAD_REQUEST),
+    DOC_NOT_FOUND(2022, "Không thể tìm thấy tài liệu bài giảng", HttpStatus.BAD_REQUEST),
+    EXAM_NOT_FOUND(2023, "Không thể tìm thấy bài kiểm tra", HttpStatus.BAD_REQUEST)
+    ;
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
         this.code = code;
         this.message = message;

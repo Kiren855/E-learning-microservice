@@ -5,6 +5,7 @@ import com.sunny.microservices.course.client.AzureFileStorageClient;
 import com.sunny.microservices.course.dto.DTO.LessonPreview;
 import com.sunny.microservices.course.dto.request.DocLessonRequest;
 import com.sunny.microservices.course.dto.request.ExamRequest;
+import com.sunny.microservices.course.dto.request.LessonRequest;
 import com.sunny.microservices.course.dto.request.VideoLessonRequest;
 import com.sunny.microservices.course.entity.*;
 import com.sunny.microservices.course.exception.AppException;
@@ -21,8 +22,6 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -53,6 +52,63 @@ public class LessonService {
     @NonFinal
     String thumbnailContainer;
 
+    public String updateLesson(String lessonId, LessonRequest request) {
+        Lesson lesson = lessonRepository.findById(lessonId)
+                .orElseThrow(() -> new AppException(ErrorCode.LESSON_NOT_FOUND));
+
+        lesson.setName(request.getName());
+        lesson.setPartNumber(request.getPartNumber());
+
+        return "Cập nhật bài giảng thành công";
+    }
+    public String deleteLesson(String sectionId,String lessonId) {
+        Section section = sectionRepository.findById(sectionId)
+                .orElseThrow(() -> new AppException(ErrorCode.SECTION_NOT_FOUND));
+
+        Lesson lesson = lessonRepository.findById(lessonId)
+                .orElseThrow(() -> new AppException(ErrorCode.LESSON_NOT_FOUND));
+
+        String type = lesson.getType();
+
+        switch (type) {
+            case "VIDEO" -> {
+                Video video = videoRepository.findById(lesson.getType_id())
+                        .orElseThrow(() -> new AppException(ErrorCode.VIDEO_NOT_FOUND));
+
+                String videoFileUrl = extractFileName(video.getVideoUrl());
+                String thumbnailUrl = extractFileName(video.getThumbnailUrl());
+                azureFileStorageClient.deleteFile(videoContainer, videoFileUrl);
+                azureFileStorageClient.deleteFile(thumbnailContainer, thumbnailUrl);
+
+                section.setDuration(section.getDuration() - video.getDuration());
+                videoRepository.delete(video);
+            }
+            case "DOC" -> {
+                Doc doc = docRepository.findById(lesson.getType_id())
+                        .orElseThrow(() -> new AppException(ErrorCode.DOC_NOT_FOUND));
+
+                String docFileUrl = extractFileName(doc.getFileUrl());
+                azureFileStorageClient.deleteFile(docContainer, docFileUrl);
+
+                docRepository.delete(doc);
+            }
+            case "EXAM" -> {
+                Exam exam = examRepository.findById(lesson.getType_id())
+                        .orElseThrow(() -> new AppException(ErrorCode.EXAM_NOT_FOUND));
+
+                examRepository.delete(exam);
+            }
+            case null, default -> {
+                return "có gì lạ lạ đang xảy ra";
+            }
+        }
+
+        section.getLessons().removeIf(existingLessonId -> existingLessonId.equals(lessonId));
+        lessonRepository.delete(lesson);
+        sectionRepository.save(section);
+
+        return "xoá bài học thành công";
+    }
     public String createVideoLesson(String sectionId, VideoLessonRequest request)  {
         try {
             Section section = sectionRepository.findById(sectionId).orElseThrow(
@@ -205,5 +261,7 @@ public class LessonService {
                 })
                 .collect(Collectors.toList());
     }
-
+    private String extractFileName(String blobUrl) {
+        return blobUrl.substring(blobUrl.lastIndexOf("/") + 1);
+    }
 }
