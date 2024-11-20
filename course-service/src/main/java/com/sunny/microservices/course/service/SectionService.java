@@ -1,8 +1,10 @@
 package com.sunny.microservices.course.service;
 
+import com.sunny.microservices.course.dto.DTO.LessonPreview;
 import com.sunny.microservices.course.dto.DTO.SectionPreview;
 import com.sunny.microservices.course.dto.request.SectionRequest;
 import com.sunny.microservices.course.entity.Course;
+import com.sunny.microservices.course.entity.Lesson;
 import com.sunny.microservices.course.entity.Section;
 import com.sunny.microservices.course.exception.AppException;
 import com.sunny.microservices.course.exception.ErrorCode;
@@ -30,6 +32,7 @@ public class SectionService {
 
         SectionRepository sectionRepository;
         MongoTemplate mongoTemplate;
+        LessonService lessonService;
         public  String createSection(String courseId, SectionRequest request) {
             try{
                 var section = Section.builder()
@@ -84,16 +87,20 @@ public class SectionService {
             }
         }
 
-        public List<SectionPreview> findSectionsByIds(List<String> ids) {
-            List<Section> sections = sectionRepository.findAllById(ids);
+    public List<SectionPreview> findSectionsByIds(List<String> sectionIds) {
+        List<Section> sections = sectionRepository.findAllById(sectionIds);
 
-            return sections.stream()
-                    .map(section -> new SectionPreview(
-                            section.getName(),
-                            section.getPartNumber(),
-                            section.getLessons(),
-                            section.getDuration(),
-                            section.getTotalLesson()))
-                    .collect(Collectors.toList());
-        }
+        return sections.stream().map(section -> {
+            List<Lesson> lessons = lessonService.findLessonsByIds(section.getLessons());
+
+            List<LessonPreview> lessonPreviews = lessonService.mapToLessonPreviews(lessons);
+
+            return SectionPreview.builder()
+                    .name(section.getName())
+                    .partNumber(section.getPartNumber())
+                    .lessons(lessonPreviews)
+                    .duration(section.getDuration())
+                    .build();
+        }).collect(Collectors.toList());
+    }
 }

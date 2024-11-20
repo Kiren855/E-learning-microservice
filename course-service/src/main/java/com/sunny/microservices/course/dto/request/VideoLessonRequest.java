@@ -11,9 +11,8 @@ import org.springframework.web.multipart.MultipartFile;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class VideoLessonRequest {
     String name;
-    String type;
     Integer partNumber;
-
+    Double duration;
     MultipartFile videoFile;
     MultipartFile thumbnailFile;
 }

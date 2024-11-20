@@ -17,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -39,13 +40,16 @@ public class CourseService {
     @Value("${azure.blob.doc-container}")
     @NonFinal
     String docContainer;
-    @Cacheable(value = "coursePreview", key = "#courseId")
+    //@Cacheable(value = "coursePreviewCache", key = "#courseId")
     public CoursePreviewResponse getCoursePreview(String courseId) {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
 
         List<TopicPreview> topics = topicService.findTopicsByIds(course.getTopic());
         List<SectionPreview> sections = sectionService.findSectionsByIds(course.getSections());
+
+        Double totalDuration = sections.stream().mapToDouble(SectionPreview::getDuration).sum();
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         Jwt jwt = (Jwt) authentication.getPrincipal();
@@ -64,10 +68,10 @@ public class CourseService {
                 .language(course.getLanguage())
                 .price(course.getPrice())
                 .discount(course.getDiscount())
-                .isDraft(course.getIsDraft())
                 .review(course.getReview())
                 .targetAudiences(course.getTargetAudiences())
-                .requirements(course.getRequirements()).build();
+                .requirements(course.getRequirements())
+                .duration(totalDuration).build();
     }
     public String createCourse(CourseRequest request) {
         try{
@@ -100,7 +104,10 @@ public class CourseService {
         }
     }
 
-    @CacheEvict(value = "courses", key = "#courseId")
+//    @Caching(evict = {
+//            @CacheEvict(value = "coursePreviewCache", key = "#id"),
+//            @CacheEvict(value = "courseDetailsCache", key = "#id")
+//    })
     public void updateCourse(String courseId,CourseRequest request) {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));

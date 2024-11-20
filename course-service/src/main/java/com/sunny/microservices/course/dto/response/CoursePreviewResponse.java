@@ -8,6 +8,7 @@ import com.sunny.microservices.course.entity.Topic;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.io.Serializable;
 import java.util.List;
 
 @Data
@@ -15,7 +16,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class CoursePreviewResponse {
+public class CoursePreviewResponse  implements Serializable {
     String id;
     String image;
     String title;
@@ -28,9 +29,8 @@ public class CoursePreviewResponse {
     List<String> language;
     Double price;
     Double discount;
-    Boolean isDraft;
     List<String> review;
     List<String> targetAudiences;
     List<String> requirements;
-    Long duration;
+    Double duration;
 }
