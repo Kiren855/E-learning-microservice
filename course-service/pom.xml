@@ -31,6 +31,12 @@
 		<spotless.version>2.43.0</spotless.version>
 		<spring-cloud-azure.version>5.13.0</spring-cloud-azure.version>
 	</properties>
+	<repositories>
+		<repository>
+			<id>confluent</id>
+			<url>https://packages.confluent.io/maven/</url>
+		</repository>
+	</repositories>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -104,11 +110,26 @@
 			<artifactId>spring-cloud-azure-starter-keyvault</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.apache.kafka</groupId>
+			<artifactId>kafka-clients</artifactId>
+			<version>3.4.0</version>
+		</dependency>
+		<dependency>
 			<groupId>com.sunny.microservices</groupId>
 			<artifactId>base-domain</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 			<scope>compile</scope>
 			<classifier>qa</classifier>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.kafka</groupId>
+			<artifactId>spring-kafka</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>2.11.0</version>
 		</dependency>
 	</dependencies>
 	<dependencyManagement>

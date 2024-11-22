@@ -1,4 +1,4 @@
-package com.sunny.microservices.course.service;
+package com.sunny.microservices.course.service.lesson;
 
 
 import com.sunny.microservices.basedomain.course.dto.DTO.LessonDetail;
@@ -22,8 +22,14 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+import org.apache.commons.io.IOUtils;
+
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -42,6 +48,7 @@ public class LessonService {
     AzureFileStorageClient azureFileStorageClient;
     MongoTemplate mongoTemplate;
     ExamRepository examRepository;
+    LessonProcessingService lessonProcessingService;
     @Value("${azure.blob.video-container}")
     @NonFinal
     String videoContainer;
@@ -111,53 +118,26 @@ public class LessonService {
 
         return "xoá bài học thành công";
     }
-    public String createVideoLesson(String sectionId, VideoLessonRequest request)  {
-        try {
-            Section section = sectionRepository.findById(sectionId).orElseThrow(
-                    () -> new AppException(ErrorCode.SECTION_NOT_FOUND)
-            );
+    public String createVideoLesson(String sectionId, VideoLessonRequest request) throws IOException {
+       try {
+           Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+           String userId = authentication.getName();
 
-            Lesson lesson = Lesson.builder()
-                    .name(request.getName())
-                    .type("VIDEO")
-                    .partNumber(request.getPartNumber())
-                    .comments(new ArrayList<>()).build();
+           String nameLesson = request.getName();
+           Integer partNumber = request.getPartNumber();
+           Double duration = request.getDuration();
+           MultipartFile videoFile = request.getVideoFile();
+           MultipartFile thumbnailFile = request.getThumbnailFile();
+           String videoName = videoFile.getOriginalFilename();
+           String thumbnailName = thumbnailFile.getOriginalFilename();
+           lessonProcessingService.processCreateVideoLesson(userId, sectionId, nameLesson, partNumber, duration,
+                   videoName ,IOUtils.toByteArray(videoFile.getInputStream()),
+                   thumbnailName, IOUtils.toByteArray(thumbnailFile.getInputStream()));
 
-            String pathVideo = azureFileStorageClient.uploadFile(videoContainer,
-                    Objects.requireNonNull(request.getVideoFile().getOriginalFilename()),
-                    request.getVideoFile().getInputStream(),
-                    request.getVideoFile().getSize());
-
-            log.info("path video {}", pathVideo);
-
-            String pathThumbnail = azureFileStorageClient.uploadFile(thumbnailContainer,
-                    Objects.requireNonNull(request.getThumbnailFile().getOriginalFilename()),
-                    request.getThumbnailFile().getInputStream(),
-                    request.getThumbnailFile().getSize());
-
-            Video video = Video.builder()
-                    .videoUrl(pathVideo)
-                    .duration(request.getDuration())
-                    .thumbnailUrl(pathThumbnail)
-                    .build();
-
-            videoRepository.save(video);
-            lesson.setType_id(video.getId());
-            lessonRepository.save(lesson);
-
-            Double newDuraton = section.getDuration() + request.getDuration();
-            mongoTemplate.updateFirst(
-                    new Query(Criteria.where("_id").is(sectionId)),
-                    new Update()
-                            .push("lessons", lesson.getId())
-                            .set("duration", newDuraton),
-                    Section.class
-            );
-
-            return "tạo bài học thành công";
-        }catch (IOException e) {
-            throw new AppException(ErrorCode.FILE_INVALID);
-        }
+           return "Hệ thống đã nhận được yêu cầu và đang tiến hành upload bài học này";
+       }catch (IOException e) {
+           throw new AppException(ErrorCode.FILE_INVALID);
+       }
     }
 
     public String createDocLesson(String sectionId, DocLessonRequest request) {
