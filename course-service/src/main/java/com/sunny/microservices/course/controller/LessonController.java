@@ -1,10 +1,10 @@
 package com.sunny.microservices.course.controller;
 
 import com.sunny.microservices.course.dto.ApiResponse;
-import com.sunny.microservices.course.dto.request.DocLessonRequest;
-import com.sunny.microservices.course.dto.request.ExamRequest;
-import com.sunny.microservices.course.dto.request.LessonRequest;
-import com.sunny.microservices.course.dto.request.VideoLessonRequest;
+import com.sunny.microservices.course.dto.request.lesson.DocLessonRequest;
+import com.sunny.microservices.course.dto.request.lesson.ExamRequest;
+import com.sunny.microservices.course.dto.request.lesson.LessonRequest;
+import com.sunny.microservices.course.dto.request.lesson.VideoLessonRequest;
 import com.sunny.microservices.course.service.lesson.LessonService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;

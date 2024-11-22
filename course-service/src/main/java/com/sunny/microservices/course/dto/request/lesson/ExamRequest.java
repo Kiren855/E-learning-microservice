@@ -1,4 +1,4 @@
-package com.sunny.microservices.course.dto.request;
+package com.sunny.microservices.course.dto.request.lesson;
 
 import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
