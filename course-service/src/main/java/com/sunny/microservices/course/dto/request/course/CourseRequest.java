@@ -1,4 +1,4 @@
-package com.sunny.microservices.course.dto.request;
+package com.sunny.microservices.course.dto.request.course;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;

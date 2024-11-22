@@ -22,6 +22,7 @@ public class Course extends BaseEntity {
     String title;
     String subTitle;
     String description;
+    String mainTopic;
     List<String> topic;
     String instructor;
     List<String> sections;

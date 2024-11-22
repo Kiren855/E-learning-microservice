@@ -1,7 +1,7 @@
-package com.sunny.microservices.course.controller;
+package com.sunny.microservices.course.controller.course;
 
 import com.sunny.microservices.basedomain.course.dto.response.CourseDetailResponse;
-import com.sunny.microservices.course.service.CourseService;
+import com.sunny.microservices.course.service.course.CourseService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;

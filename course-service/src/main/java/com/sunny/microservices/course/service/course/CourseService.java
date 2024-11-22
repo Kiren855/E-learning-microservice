@@ -1,4 +1,4 @@
-package com.sunny.microservices.course.service;
+package com.sunny.microservices.course.service.course;
 
 import com.sunny.microservices.basedomain.course.dto.DTO.ReviewDetail;
 import com.sunny.microservices.basedomain.course.dto.DTO.SectionDetail;
@@ -8,13 +8,16 @@ import com.sunny.microservices.course.client.AzureFileStorageClient;
 import com.sunny.microservices.course.client.UserClient;
 import com.sunny.microservices.course.dto.DTO.SectionPreview;
 import com.sunny.microservices.course.dto.DTO.TopicPreview;
-import com.sunny.microservices.course.dto.request.CourseRequest;
-import com.sunny.microservices.course.dto.response.CoursePreviewResponse;
-import com.sunny.microservices.course.dto.response.CourseResponse;
+import com.sunny.microservices.course.dto.request.course.CourseRequest;
+import com.sunny.microservices.course.dto.response.course.CoursePreviewResponse;
+import com.sunny.microservices.course.dto.response.course.CourseResponse;
 import com.sunny.microservices.course.entity.Course;
 import com.sunny.microservices.course.exception.AppException;
 import com.sunny.microservices.course.exception.ErrorCode;
 import com.sunny.microservices.course.repository.CourseRepository;
+import com.sunny.microservices.course.service.ReviewService;
+import com.sunny.microservices.course.service.SectionService;
+import com.sunny.microservices.course.service.TopicService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;

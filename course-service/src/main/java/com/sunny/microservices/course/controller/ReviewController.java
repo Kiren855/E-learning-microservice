@@ -2,7 +2,6 @@ package com.sunny.microservices.course.controller;
 
 import com.sunny.microservices.course.dto.ApiResponse;
 import com.sunny.microservices.course.dto.request.ReviewRequest;
-import com.sunny.microservices.course.dto.response.CoursePreviewResponse;
 import com.sunny.microservices.course.service.ReviewService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
