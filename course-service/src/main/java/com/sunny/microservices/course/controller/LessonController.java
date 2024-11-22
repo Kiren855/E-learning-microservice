@@ -5,7 +5,7 @@ import com.sunny.microservices.course.dto.request.DocLessonRequest;
 import com.sunny.microservices.course.dto.request.ExamRequest;
 import com.sunny.microservices.course.dto.request.LessonRequest;
 import com.sunny.microservices.course.dto.request.VideoLessonRequest;
-import com.sunny.microservices.course.service.LessonService;
+import com.sunny.microservices.course.service.lesson.LessonService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -14,7 +14,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @RestController
 @RequestMapping("section/lessons")
@@ -27,7 +28,7 @@ public class LessonController {
     @PostMapping("/video/{sectionId}")
     @PreAuthorize("hasRole('INSTRUCTOR')")
     public ResponseEntity<?> createVideoLesson(@PathVariable String sectionId,
-                                               @ModelAttribute VideoLessonRequest request) {
+                                               @ModelAttribute VideoLessonRequest request) throws IOException {
         ApiResponse<String> response = ApiResponse.<String>builder()
                 .message(lessonService.createVideoLesson(sectionId, request))
                .build();

@@ -11,6 +11,7 @@ import com.sunny.microservices.course.entity.Section;
 import com.sunny.microservices.course.exception.AppException;
 import com.sunny.microservices.course.exception.ErrorCode;
 import com.sunny.microservices.course.repository.SectionRepository;
+import com.sunny.microservices.course.service.lesson.LessonService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;

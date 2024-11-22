@@ -5,7 +5,7 @@ server:
 
 spring:
   application:
-    name: course-service
+    name: learning-service
   data:
     mongodb:
       uri: mongodb+srv://admin:7Fu8C1gbpjNMY9PQ@cluster0.fb5e0r9.mongodb.net/learning-service
