@@ -48,16 +48,16 @@ public class CourseService {
     @Value("${azure.blob.doc-container}")
     @NonFinal
     String docContainer;
-    //@Cacheable(value = "coursePreviewCache", key = "#courseId")
     public CoursePreviewResponse getCoursePreview(String courseId) {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
 
-        List<TopicPreview> topics = topicService.findTopicsByIds(course.getTopic());
         List<SectionPreview> sections = sectionService.findSectionsByIds(course.getSections());
         List<ReviewDetail> reviews = reviewService.findReviewsById(course.getReviews());
         Double totalDuration = sections.stream().mapToDouble(SectionPreview::getDuration).sum();
         String username = userClient.getProfile(course.getInstructor()).getUsername();
+        String mainTopic = topicService.getMainTopicById(course.getMainTopic());
+        String subTopic = topicService.getSubTopicById(course.getSubTopic());
 
         return CoursePreviewResponse.builder()
                 .id(course.getId())
@@ -65,7 +65,8 @@ public class CourseService {
                 .title(course.getTitle())
                 .subTitle(course.getSubTitle())
                 .description(course.getDescription())
-                .topic(topics)
+                .mainTopic(mainTopic)
+                .subTopic(subTopic)
                 .instructor(username)
                 .sections(sections)
                 .rating(course.getRating())
@@ -76,55 +77,6 @@ public class CourseService {
                 .targetAudiences(course.getTargetAudiences())
                 .requirements(course.getRequirements())
                 .duration(totalDuration).build();
-    }
-    public String createCourse(CourseRequest request) {
-        try{
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String userId = authentication.getName();
-
-            String imgPath = azureFileStorageClient.uploadFile(docContainer, Objects.requireNonNull(request.getImage().getOriginalFilename()), request.getImage().getInputStream(), request.getImage().getSize());
-            Course course = Course.builder()
-                    .image(imgPath)
-                    .title(request.getTitle())
-                    .subTitle(request.getSubTitle())
-                    .description(request.getDescription())
-                    .topic(request.getTopic())
-                    .language(request.getLanguage())
-                    .price(request.getPrice())
-                    .targetAudiences(request.getTargetAudiences())
-                    .requirements(request.getRequirements())
-                    .instructor(userId)
-                    .isDraft(Boolean.TRUE)
-                    .discount(0.0)
-                    .rating(0.0)
-                    .reviews(List.of())
-                    .sections(List.of()).build();
-
-            courseRepository.save(course);
-
-            return "tạo khoá học thành công";
-        }catch (IOException e) {
-            throw new AppException(ErrorCode.FILE_INVALID);
-        }
-    }
-
-//    @Caching(evict = {
-//            @CacheEvict(value = "coursePreviewCache", key = "#id"),
-//            @CacheEvict(value = "courseDetailsCache", key = "#id")
-//    })
-    public void updateCourse(String courseId,CourseRequest request) {
-        Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
-
-        course.setTitle(request.getTitle());
-        course.setSubTitle(request.getSubTitle());
-        course.setDescription(request.getDescription());
-        course.setTopic(request.getTopic());
-        course.setLanguage(request.getLanguage());
-        course.setPrice(request.getPrice());
-        course.setTargetAudiences(request.getTargetAudiences());
-
-        courseRepository.save(course);
     }
 
     public void deleteCourse(String courseId) {
@@ -145,17 +97,20 @@ public class CourseService {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
 
-        List<TopicDetail> topics = topicService.findTopicsById(course.getTopic());
         List<SectionDetail> sections = sectionService.findSectionsDetailByIds(course.getSections());
         List<ReviewDetail> reviews = reviewService.findReviewsById(course.getReviews());
         Double totalDuration = sections.stream().mapToDouble(SectionDetail::getDuration).sum();
         String username = userClient.getProfile(course.getInstructor()).getUsername();
+        String mainTopic = topicService.getMainTopicById(course.getMainTopic());
+        String subTopic = topicService.getSubTopicById(course.getSubTopic());
+
         return CourseDetailResponse.builder()
                 .id(course.getId())
                 .title(course.getTitle())
                 .subTitle(course.getSubTitle())
                 .description(course.getDescription())
-                .topic(topics)
+                .mainTopic(mainTopic)
+                .subTopic(subTopic)
                 .sections(sections)
                 .instructor(username)
                 .language(course.getLanguage())
@@ -166,7 +121,7 @@ public class CourseService {
                 .duration(totalDuration).build();
     }
 
-    public List<CourseResponse> getCouses() {
+    public List<CourseResponse> getCourses() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();
 
@@ -174,12 +129,10 @@ public class CourseService {
 
         return courses.stream().map(course ->
         {
-            List<TopicDetail> topics = topicService.findTopicsById(course.getTopic());
             return CourseResponse.builder()
                     .id(course.getId())
                     .title(course.getTitle())
                     .image(course.getImage())
-                    .topic(topics)
                     .isDraft(course.getIsDraft())
                     .build();
         }).collect(Collectors.toList());

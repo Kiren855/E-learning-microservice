@@ -15,6 +15,13 @@ spring:
         jwt:
           issuer-uri: https://bugbuster.click/realms/sunny
 
+  cloud:
+    azure:
+      storage:
+        account-name: sunnystorage855
+        account-key: jAZ/U552yytV/lE26idYXNq5OUCn7809visvtDfPbH9lTZ3Jbi571NNVPp1vDMp2ebx+8g9U7lb++AStf/LKGA==
+
+
 idp:
   url: https://bugbuster.click
   client-id: sunny_app

@@ -25,7 +25,10 @@ public enum ErrorCode {
     ERROR_ACCOUNT(1018, "thông tin tài khoản hoặc mật khẩu không đúng", HttpStatus.BAD_REQUEST),
     INVALID_FIRSTNAME(1019, "tên người dùng phải lớn hơn {min} kí tự", HttpStatus.BAD_REQUEST),
     INVALID_LASTNAME(1020, "họ người dùng phải lớn hơn {min} kí tự", HttpStatus.BAD_REQUEST),
-    TOKEN_EXPIRED(1021, "token đã hết hạn, không thể sử dụng được nữa", HttpStatus.BAD_REQUEST);
+    TOKEN_EXPIRED(1021, "token đã hết hạn, không thể sử dụng được nữa", HttpStatus.BAD_REQUEST),
+    USERNAME_MUST_START_WITH_LETTER(1022, "username kí tự đầu phải là kí tự a-z", HttpStatus.BAD_REQUEST),
+    AVATAR_NOT_FOUND(1023, "Không tìm thấy avatar", HttpStatus.BAD_REQUEST),
+    FILE_CANNOT_UPLOAD(1024, "Không thể upload file", HttpStatus.BAD_REQUEST);
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
         this.code = code;
         this.message = message;

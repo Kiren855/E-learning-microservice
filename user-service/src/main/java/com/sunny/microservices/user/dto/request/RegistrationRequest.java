@@ -2,6 +2,7 @@ package com.sunny.microservices.user.dto.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -16,6 +17,7 @@ import java.time.LocalDate;
 public class RegistrationRequest {
     @Size(min = 4, message = "INVALID_USERNAME")
     @NotBlank(message = "USERNAME_REQUIRED")
+    @Pattern(regexp = "^[a-zA-Z].*", message = "USERNAME_MUST_START_WITH_LETTER")
     String username;
 
     @Size(min = 6, message = "INVALID_PASSWORD")

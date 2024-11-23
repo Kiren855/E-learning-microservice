@@ -29,7 +29,7 @@ public class ProfileController {
     }
 
     @PutMapping("/profile")
-    public ResponseEntity<?> updateProfile(EditProfileRequest request) {
+    public ResponseEntity<?> updateProfile(@ModelAttribute EditProfileRequest request) {
         ApiResponse<UserResponse> response = ApiResponse.<UserResponse>builder()
                 .message(profileService.updateProfile(request))
                 .build();

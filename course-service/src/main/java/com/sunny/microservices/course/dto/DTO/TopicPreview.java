@@ -11,5 +11,6 @@ import java.io.Serializable;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class TopicPreview  implements Serializable {
+    String id;
     String name;
 }
