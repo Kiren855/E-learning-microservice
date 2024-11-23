@@ -6,10 +6,12 @@ import com.sunny.microservices.user.dto.identity.UserCreationParam;
 import com.sunny.microservices.user.dto.request.LoginRequest;
 import com.sunny.microservices.user.dto.request.RegistrationRequest;
 import com.sunny.microservices.user.dto.request.TokenRequest;
+import com.sunny.microservices.user.entity.Avatar;
 import com.sunny.microservices.user.entity.User;
 import com.sunny.microservices.user.exception.AppException;
 import com.sunny.microservices.user.exception.ErrorCode;
 import com.sunny.microservices.user.exception.ErrorNormalizer;
+import com.sunny.microservices.user.repository.AvatarRepository;
 import com.sunny.microservices.user.repository.IdentityClient;
 import com.sunny.microservices.user.repository.UserRepository;
 import feign.FeignException;
@@ -31,6 +33,7 @@ public class IdentityService {
     UserRepository userRepository;
     IdentityClient identityClient;
     ErrorNormalizer errorNormalizer;
+    AvatarRepository avatarRepository;
     @Value("${idp.client-id}")
     @NonFinal
     String clientId;
@@ -74,9 +77,13 @@ public class IdentityService {
                     .dob(request.getDob())
                     .build();
 
+            String firstLetter = request.getUsername().substring(0, 1).toUpperCase();
+            Avatar avatar = avatarRepository.findByName(firstLetter)
+                    .orElseThrow(()-> new AppException(ErrorCode.AVATAR_NOT_FOUND));
+
             profile.setUserId(userId);
             profile.setGoogleId("");
-            profile.setAvatar("https://sunnystorage855.blob.core.windows.net/avatar-container/avatar_user.jpg");
+            profile.setAvatar(avatar.getImage());
             profile.setIntroduce("chưa có thông tin gì để giới thiệu");
             userRepository.save(profile);
 

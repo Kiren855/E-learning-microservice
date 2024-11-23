@@ -1,9 +1,11 @@
 package com.sunny.microservices.course.controller.course;
 
 import com.sunny.microservices.course.dto.ApiResponse;
+import com.sunny.microservices.course.dto.request.course.CourseCreateRequest;
 import com.sunny.microservices.course.dto.request.course.CourseRequest;
 import com.sunny.microservices.course.dto.response.course.CoursePreviewResponse;
 import com.sunny.microservices.course.dto.response.course.CourseResponse;
+import com.sunny.microservices.course.service.course.CourseCreateService;
 import com.sunny.microservices.course.service.course.CourseService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +26,7 @@ import java.util.List;
 public class CourseController {
 
     CourseService courseService;
-
+    CourseCreateService courseCreateService;
     @GetMapping("/preview/{courseId}")
     public ResponseEntity<?> getCourse(@PathVariable String courseId) {
         ApiResponse<CoursePreviewResponse> response = ApiResponse.<CoursePreviewResponse>builder()
@@ -35,19 +37,11 @@ public class CourseController {
     }
     @PostMapping()
     @PreAuthorize("hasRole('INSTRUCTOR')")
-    public ResponseEntity<?> createCourse(@ModelAttribute CourseRequest request) {
+    public ResponseEntity<?> createCourse(@RequestBody CourseCreateRequest request) {
         ApiResponse<String> response = ApiResponse.<String>builder()
-                .message(courseService.createCourse(request)).build();
+                .message(courseCreateService.createCourse(request)).build();
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
-    }
-
-    @PutMapping("/{courseId}")
-    @PreAuthorize("hasRole('INSTRUCTOR') or hasRole('ADMIN')")
-    public ResponseEntity<?> updateCourse(@PathVariable String courseId, @RequestBody CourseRequest request) {
-        courseService.updateCourse(courseId, request);
-
-        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{courseId}")
@@ -63,7 +57,7 @@ public class CourseController {
     public ResponseEntity<?> getCourses() {
         ApiResponse<List<CourseResponse>> response = ApiResponse.<List<CourseResponse>>builder()
                 .message("Lấy danh sách khoá học thành công")
-                .result(courseService.getCouses()).build();
+                .result(courseService.getCourses()).build();
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }

@@ -31,7 +31,7 @@
 		<spring-cloud.version>2023.0.3</spring-cloud.version>
 		<projectlombok-lombok.version>1.18.30</projectlombok-lombok.version>
 		<spotless.version>2.43.0</spotless.version>
-
+		<spring-cloud-azure.version>5.13.0</spring-cloud-azure.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -81,6 +81,14 @@
 			<scope>compile</scope>
 			<classifier>qa</classifier>
 		</dependency>
+		<dependency>
+			<groupId>com.azure.spring</groupId>
+			<artifactId>spring-cloud-azure-starter-storage-blob</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.azure.spring</groupId>
+			<artifactId>spring-cloud-azure-starter-keyvault</artifactId>
+		</dependency>
 	</dependencies>
 	<dependencyManagement>
 		<dependencies>
@@ -88,6 +96,13 @@
 				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-dependencies</artifactId>
 				<version>${spring-cloud.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.azure.spring</groupId>
+				<artifactId>spring-cloud-azure-dependencies</artifactId>
+				<version>${spring-cloud-azure.version}</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>

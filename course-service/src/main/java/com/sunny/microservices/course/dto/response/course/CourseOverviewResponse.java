@@ -1,8 +1,9 @@
 package com.sunny.microservices.course.dto.response.course;
 
-import com.sunny.microservices.basedomain.course.dto.DTO.TopicDetail;
+import com.sunny.microservices.course.entity.SubTopic;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+
 import java.util.List;
 
 @Data
@@ -10,9 +11,12 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class  CourseResponse {
-    String id;
-    String image;
+public class CourseOverviewResponse {
     String title;
-    Boolean isDraft;
+    String subTitle;
+    String description;
+    String instructor;
+    String mainTopic;
+    String subTopic;
+    String image;
 }

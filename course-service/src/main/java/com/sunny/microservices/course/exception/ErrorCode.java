@@ -33,7 +33,9 @@ public enum ErrorCode {
     VIDEO_NOT_FOUND(2021, "Không thể tìm thấy bài giảng Video", HttpStatus.BAD_REQUEST),
     DOC_NOT_FOUND(2022, "Không thể tìm thấy tài liệu bài giảng", HttpStatus.BAD_REQUEST),
     EXAM_NOT_FOUND(2023, "Không thể tìm thấy bài kiểm tra", HttpStatus.BAD_REQUEST),
-    REVIEW_NOT_FOUND(2024, "Không tìm thấy đánh giá", HttpStatus.BAD_REQUEST)
+    REVIEW_NOT_FOUND(2024, "Không tìm thấy đánh giá", HttpStatus.BAD_REQUEST),
+    TOPIC_REQUIRED(2025, "Cần nhập topic chính", HttpStatus.BAD_REQUEST),
+    TOPIC_NOT_FOUND(2026, "Không tìm thấy topic", HttpStatus.BAD_REQUEST),
     ;
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
         this.code = code;

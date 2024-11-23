@@ -4,6 +4,7 @@ import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 
@@ -22,7 +23,7 @@ public class EditProfileRequest {
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     LocalDate dob;
 
-    String avatar;
+    MultipartFile avatar;
 
     String introduce;
 }

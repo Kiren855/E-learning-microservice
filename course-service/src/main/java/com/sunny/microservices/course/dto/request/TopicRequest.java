@@ -12,5 +12,4 @@ import lombok.experimental.FieldDefaults;
 public class TopicRequest {
     @Size(min = 3, message = "INVALID_MIN_MAX_TOPIC_NAME")
     String name;
-    String description;
 }

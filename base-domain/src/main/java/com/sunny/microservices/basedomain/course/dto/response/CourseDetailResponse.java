@@ -19,11 +19,12 @@ public class CourseDetailResponse {
     String title;
     String subTitle;
     String description;
-    List<TopicDetail> topic;
+    String mainTopic;
+    String subTopic;
     List<SectionDetail> sections;
     String instructor;
     Double rating;
-    List<String> language;
+    String language;
     List<String> targetAudiences;
     List<String> requirements;
     Double duration;

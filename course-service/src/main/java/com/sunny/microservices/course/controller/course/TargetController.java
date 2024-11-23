@@ -20,23 +20,5 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
 public class TargetController {
-    TargetService targetService;
 
-    @PostMapping("/target/{courseId}")
-    @PreAuthorize("hasRole('INSTRUCTOR')")
-    public ResponseEntity<?> createTarget(@PathVariable String courseId, CourseTargetRequest request) {
-        ApiResponse<String> response = ApiResponse.<String>builder()
-                .message(targetService.createTarget(courseId, request)).build();
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
-    }
-
-    @GetMapping("/target/{courseId}")
-    public ResponseEntity<?> getTarget(@PathVariable String courseId) {
-        ApiResponse<List<String>> response = ApiResponse.<List<String>>builder()
-                .message("lấy danh sách mục tiêu thành công")
-                .result(targetService.getTarget(courseId)).build();
-
-        return ResponseEntity.status(HttpStatus.OK).body(response);
-    }
 }

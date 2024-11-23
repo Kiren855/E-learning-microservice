@@ -4,7 +4,6 @@ package com.sunny.microservices.course.controller;
 import com.sunny.microservices.course.dto.ApiResponse;
 import com.sunny.microservices.course.dto.request.TopicRequest;
 import com.sunny.microservices.course.dto.response.TopicResponse;
-import com.sunny.microservices.course.entity.Topic;
 import com.sunny.microservices.course.service.TopicService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
