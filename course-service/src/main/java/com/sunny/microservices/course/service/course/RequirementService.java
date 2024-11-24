@@ -21,7 +21,7 @@ import java.util.List;
 public class RequirementService {
     CourseRepository courseRepository;
 
-    public String createRequirement(String courseId, CourseRequirementRequest request) {
+    public String updateRequirement(String courseId, CourseRequirementRequest request) {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
         course.setRequirements(request.getRequirements());

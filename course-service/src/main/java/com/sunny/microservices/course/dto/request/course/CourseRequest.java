@@ -23,7 +23,7 @@ public class CourseRequest {
     String description;
     List<String> topic;
     List<String> language;
-    Double price;
+    Integer price;
     List<String> targetAudiences;
     List<String> requirements;
 }

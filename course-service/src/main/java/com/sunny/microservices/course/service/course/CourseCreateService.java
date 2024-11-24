@@ -1,5 +1,6 @@
 package com.sunny.microservices.course.service.course;
 
+import com.sunny.microservices.course.client.UserClient;
 import com.sunny.microservices.course.dto.request.course.CourseCreateRequest;
 import com.sunny.microservices.course.entity.Course;
 import com.sunny.microservices.course.repository.CourseRepository;
@@ -17,15 +18,19 @@ import org.springframework.stereotype.Service;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class CourseCreateService {
     CourseRepository courseRepository;
-
+    UserClient userClient;
     public String createCourse(CourseCreateRequest request) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();
 
+        var user = userClient.getProfile(userId);
+
         Course course = Course.builder().build();
         course.setTitle(request.getTitle());
         course.setMainTopic(request.getMainTopic());
-        course.setInstructor(userId);
+        course.setInstructorId(userId);
+        course.setInstructorName(user.getUsername());
+
         courseRepository.save(course);
 
         return "Tạo khoá học thành công";

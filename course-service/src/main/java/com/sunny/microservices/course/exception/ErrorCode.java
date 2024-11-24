@@ -36,6 +36,7 @@ public enum ErrorCode {
     REVIEW_NOT_FOUND(2024, "Không tìm thấy đánh giá", HttpStatus.BAD_REQUEST),
     TOPIC_REQUIRED(2025, "Cần nhập topic chính", HttpStatus.BAD_REQUEST),
     TOPIC_NOT_FOUND(2026, "Không tìm thấy topic", HttpStatus.BAD_REQUEST),
+    COURSE_NOTI_NOT_FOUND(2027, "Không tìm thấy thông báo khoá học", HttpStatus.BAD_REQUEST),
     ;
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
         this.code = code;

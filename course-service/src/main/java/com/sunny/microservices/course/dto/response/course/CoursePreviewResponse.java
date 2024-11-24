@@ -23,14 +23,17 @@ public class CoursePreviewResponse  implements Serializable {
     String description;
     String mainTopic;
     String subTopic;
-    String instructor;
-    List<SectionPreview> sections;
+    String instructorId;
+    String instructorName;
+    Double duration;
     Double rating;
     String language;
-    Double price;
+    Integer price;
     Double discount;
+    String welcome;
+    String congratulation;
     List<ReviewDetail> reviews;
     List<String> targetAudiences;
     List<String> requirements;
-    Double duration;
+    List<SectionPreview> sections;
 }

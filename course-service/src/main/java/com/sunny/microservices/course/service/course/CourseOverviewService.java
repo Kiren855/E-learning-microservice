@@ -83,9 +83,19 @@ public class CourseOverviewService {
                 .title(course.getTitle())
                 .subTitle(course.getSubTitle())
                 .description(course.getDescription())
-                .instructor(course.getInstructor())
+                .instructorId(course.getInstructorId())
+                .instructorName(course.getInstructorName())
                 .image(course.getImage())
                 .mainTopic(course.getMainTopic())
                 .subTopic(course.getSubTopic()).build();
+    }
+
+    public String updatePrice(String courseId, Integer Price) {
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
+        course.setPrice(Price);
+        courseRepository.save(course);
+
+        return "Thay đổi giá thành công";
     }
 }
