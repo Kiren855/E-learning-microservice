@@ -24,14 +24,17 @@ public class Course extends BaseEntity {
     String description;
     String mainTopic;
     String subTopic;
-    String instructor;
+    String instructorId;
+    String instructorName;
     List<String> sections;
     Double rating;
     String language;
-    Double price;
+    Integer price;
     Double discount;
     Boolean isDraft;
     List<String> reviews;
     List<String> targetAudiences;
     List<String> requirements;
+    String welcome;
+    String congratulation;
 }

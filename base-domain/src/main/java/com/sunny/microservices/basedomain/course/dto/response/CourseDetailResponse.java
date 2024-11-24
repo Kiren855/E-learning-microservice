@@ -22,7 +22,8 @@ public class CourseDetailResponse {
     String mainTopic;
     String subTopic;
     List<SectionDetail> sections;
-    String instructor;
+    String instructorId;
+    String instructorName;
     Double rating;
     String language;
     List<String> targetAudiences;

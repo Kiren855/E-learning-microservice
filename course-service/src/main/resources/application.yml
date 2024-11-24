@@ -2,6 +2,7 @@ server:
   port: 8081
   servlet:
     context-path: /course
+  forward-headers-strategy: framework
 spring:
   application:
     name: course-service
@@ -36,6 +37,9 @@ spring:
     bootstrap-servers: "edumanabo-event.servicebus.windows.net:9093"
     topic:
       lesson-created: "lesson-created"
+      submit-course: "submit-course"
+      approve-course: "approve-course"
+      reject-course: "reject-course"
     properties:
       security:
         protocol: SASL_SSL
@@ -74,4 +78,26 @@ logging:
     org.apache.kafka.clients.consumer: WARN
 
 user-service:
-  url: http://localhost:8080/user
+  url: https://user-service.ambitiousbush-9297f82e.southeastasia.azurecontainerapps.io/user
+
+springdoc:
+  api-docs:
+    enabled: true
+
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    operations-sorter: alpha
+    tags-sorter: alpha
+    display-request-duration: true
+    try-it-out-enabled: true
+    oauth:
+      client-id: sunny_app
+      client-secret: p1q9lg1SZD2IoSSxD4EyuFYMGNQ735MJ
+
+  default-security-scheme:
+    type: http
+    scheme: bearer
+    bearer-format: JWT
+
+  security-scheme-name: BearerAuth

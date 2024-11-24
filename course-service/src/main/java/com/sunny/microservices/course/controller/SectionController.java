@@ -22,7 +22,7 @@ public class SectionController {
     SectionService sectionService;
     @PostMapping("/{courseId}")
     @PreAuthorize("hasRole('INSTRUCTOR')")
-    public ResponseEntity<?> createSection(@PathVariable String courseId, @RequestBody SectionRequest request) {
+    public ResponseEntity<ApiResponse<String>> createSection(@PathVariable String courseId, @RequestBody SectionRequest request) {
         ApiResponse<String> response = ApiResponse.<String>builder()
                 .message(sectionService.createSection(courseId, request)).build();
 
@@ -31,7 +31,7 @@ public class SectionController {
 
     @PutMapping("/{sectionId}")
     @PreAuthorize("hasRole('INSTRUCTOR') or hasRole('ADMIN')")
-    public ResponseEntity<?> updateSection(@PathVariable String sectionId, SectionRequest request) {
+    public ResponseEntity<ApiResponse<String>> updateSection(@PathVariable String sectionId, SectionRequest request) {
         ApiResponse<String> response = ApiResponse.<String>builder()
                 .message(sectionService.updateSection(sectionId, request)).build();
 
@@ -40,7 +40,7 @@ public class SectionController {
 
     @DeleteMapping
     @PreAuthorize("hasRole('INSTRUCTOR') or hasRole('ADMIN')")
-    public ResponseEntity<?> deleteSection(@RequestParam String courseId, @RequestParam String sectionId) {
+    public ResponseEntity<ApiResponse<String>> deleteSection(@RequestParam String courseId, @RequestParam String sectionId) {
         ApiResponse<String> response = ApiResponse.<String>builder()
                 .message(sectionService.deleteSection(courseId, sectionId)).build();
 

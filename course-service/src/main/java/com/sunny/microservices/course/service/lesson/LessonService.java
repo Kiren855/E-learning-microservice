@@ -4,10 +4,7 @@ package com.sunny.microservices.course.service.lesson;
 import com.sunny.microservices.basedomain.course.dto.DTO.LessonDetail;
 import com.sunny.microservices.course.client.AzureFileStorageClient;
 import com.sunny.microservices.course.dto.DTO.LessonPreview;
-import com.sunny.microservices.course.dto.request.lesson.DocLessonRequest;
-import com.sunny.microservices.course.dto.request.lesson.ExamRequest;
-import com.sunny.microservices.course.dto.request.lesson.LessonRequest;
-import com.sunny.microservices.course.dto.request.lesson.VideoLessonRequest;
+import com.sunny.microservices.course.dto.request.lesson.*;
 import com.sunny.microservices.course.entity.*;
 import com.sunny.microservices.course.exception.AppException;
 import com.sunny.microservices.course.exception.ErrorCode;
@@ -19,9 +16,6 @@ import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -44,9 +38,9 @@ public class LessonService {
     SectionRepository sectionRepository;
     DocRepository docRepository;
     AzureFileStorageClient azureFileStorageClient;
-    MongoTemplate mongoTemplate;
     ExamRepository examRepository;
     LessonProcessingService lessonProcessingService;
+    ArticleRepository articleRepository;
     @Value("${azure.blob.video-container}")
     @NonFinal
     String videoContainer;
@@ -128,6 +122,7 @@ public class LessonService {
            MultipartFile thumbnailFile = request.getThumbnailFile();
            String videoName = videoFile.getOriginalFilename();
            String thumbnailName = thumbnailFile.getOriginalFilename();
+
            lessonProcessingService.processCreateVideoLesson(userId, sectionId, nameLesson, partNumber, duration,
                    videoName ,IOUtils.toByteArray(videoFile.getInputStream()),
                    thumbnailName, IOUtils.toByteArray(thumbnailFile.getInputStream()));
@@ -140,37 +135,26 @@ public class LessonService {
 
     public String createDocLesson(String sectionId, DocLessonRequest request) {
         try {
-            sectionRepository.findById(sectionId).orElseThrow(
-                    () -> new AppException(ErrorCode.SECTION_NOT_FOUND)
-            );
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String userId = authentication.getName();
 
-            Lesson lesson = Lesson.builder()
-                    .name(request.getName())
-                    .type("DOC")
-                    .partNumber(request.getPartNumber()).build();
+            String nameLesson = request.getName();
+            Integer partNumber = request.getPartNumber();
 
-            String pathFile = azureFileStorageClient.uploadFile(docContainer, Objects.requireNonNull(request.getDocFile().getOriginalFilename()), request.getDocFile().getInputStream(), request.getDocFile().getSize());
+            MultipartFile docFile = request.getDocFile();
+            String docName = docFile.getOriginalFilename();
 
-            Doc doc = Doc.builder()
-                    .fileUrl(pathFile).build();
-            docRepository.save(doc);
-            lesson.setType_id(doc.getId());
-            lessonRepository.save(lesson);
+            lessonProcessingService.processCreateDocLesson(userId, sectionId, nameLesson,
+                    partNumber, docName, IOUtils.toByteArray(docFile.getInputStream()));
 
-            mongoTemplate.updateFirst(
-                    new Query(Criteria.where("_id").is(sectionId)),
-                    new Update().push("lessons", lesson.getId()),
-                    Section.class
-            );
-
-            return "tạo bài học thành công";
+            return "Hệ thống đã nhận được yêu cầu và đang tiến hành upload bài học này";
         }catch (IOException e) {
             throw new AppException(ErrorCode.FILE_INVALID);
         }
     }
 
     public String createExam(String sectionId, ExamRequest request) {
-        sectionRepository.findById(sectionId).orElseThrow(
+        Section section = sectionRepository.findById(sectionId).orElseThrow(
                 () -> new AppException(ErrorCode.SECTION_NOT_FOUND)
         );
 
@@ -190,13 +174,26 @@ public class LessonService {
         lesson.setType_id(exam.getId());
         lessonRepository.save(lesson);
 
-        mongoTemplate.updateFirst(
-                new Query(Criteria.where("_id").is(sectionId)),
-                new Update().push("lessons", lesson.getId()),
-                Section.class
-        );
+        section.getLessons().add(lesson.getId());
+        sectionRepository.save(section);
 
         return "Tạo thành công bài kiểm tra";
+    }
+
+    public String updateExam(String lessonId, ExamRequest request) {
+        Lesson lesson = lessonRepository.findById(lessonId)
+                .orElseThrow(()-> new AppException(ErrorCode.LESSON_NOT_FOUND));
+
+        if(Objects.equals(lesson.getType(), "EXAM")) {
+                String examId = lesson.getType_id();
+
+                Exam exam = examRepository.findById(examId)
+                        .orElseThrow(()-> new AppException(ErrorCode.DOC_NOT_FOUND));
+
+                exam.setContents(mapQuestions(request.getContents()));
+                examRepository.save(exam);
+        }
+        return "Cập nhật bài kiểm tra thành công";
     }
 
     private List<Exam.Question> mapQuestions(List<ExamRequest.QuestionRequest> questionRequests) {
@@ -270,4 +267,46 @@ public class LessonService {
 //    public ResponseEntity<?> getLessonDetail(String lessonId) {
 //
 //    }
+
+    public String createArticle(String sectionId, ArticleLessonRequest request) {
+        Section section = sectionRepository.findById(sectionId).orElseThrow(
+                () -> new AppException(ErrorCode.SECTION_NOT_FOUND)
+        );
+
+        Lesson lesson = Lesson.builder()
+                .name(request.getName())
+                .type("ARTICLE")
+                .partNumber(request.getPartNumber())
+                .build();
+
+        Article article = Article.builder()
+               .content(request.getContent()).build();
+
+        articleRepository.save(article);
+        lesson.setType_id(article.getId());
+        lessonRepository.save(lesson);
+        section.getLessons().add(lesson.getId());
+        sectionRepository.save(section);
+
+        return "Tạo bài viết thành công";
+    }
+
+    public String updateArticle(String lessonId, String content) {
+            Lesson lesson = lessonRepository.findById(lessonId)
+                    .orElseThrow(()-> new AppException(ErrorCode.LESSON_NOT_FOUND));
+
+
+            String articleid = lesson.getType_id();
+            if(Objects.equals(lesson.getType(), "ARTICLE")) {
+                    Article article = articleRepository.findById(articleid)
+                            .orElseThrow(()-> new AppException(ErrorCode.DOC_NOT_FOUND));
+
+                    article.setContent(content);
+                    articleRepository.save(article);
+            }
+
+            return "Cập nhật bài viết thành công";
+    }
+
+
 }

@@ -20,7 +20,7 @@ import java.util.List;
 public class TargetService {
     CourseRepository courseRepository;
 
-    public String createTarget(String courseId, CourseTargetRequest request) {
+    public String updateTarget(String courseId, CourseTargetRequest request) {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
         course.setTargetAudiences(request.getTargetAudiences());

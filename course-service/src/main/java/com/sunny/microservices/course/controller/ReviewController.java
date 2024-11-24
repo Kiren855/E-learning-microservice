@@ -20,7 +20,7 @@ public class ReviewController {
     ReviewService reviewService;
 
     @PostMapping("/{courseId}")
-    public ResponseEntity<?> createReview(@PathVariable String courseId,@RequestBody ReviewRequest request) {
+    public ResponseEntity<ApiResponse<String>> createReview(@PathVariable String courseId,@RequestBody ReviewRequest request) {
         ApiResponse<String> response = ApiResponse.<String>builder()
                 .message(reviewService.createReview(courseId, request))
                 .build();
@@ -29,7 +29,7 @@ public class ReviewController {
     }
 
     @PutMapping("/{reviewId}")
-    public ResponseEntity<?> updateReview(@PathVariable String reviewId,@RequestBody ReviewRequest request) {
+    public ResponseEntity<ApiResponse<String>> updateReview(@PathVariable String reviewId,@RequestBody ReviewRequest request) {
         ApiResponse<String> response = ApiResponse.<String>builder()
                 .message(reviewService.updateReview(reviewId, request))
                 .build();

@@ -19,6 +19,9 @@ spring:
     bootstrap-servers: "edumanabo-event.servicebus.windows.net:9093"
     topic:
       lesson-created: "lesson-created"
+      submit-course: "submit-course"
+      approve-course: "approve-course"
+      reject-course: "reject-course"
     properties:
       security:
         protocol: SASL_SSL
@@ -29,6 +32,8 @@ spring:
 
     consumer:
       group-id: "notification-consumer-group"
+      enable-auto-commit: true
+      auto-commit-interval: 1000
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
@@ -38,17 +43,15 @@ spring:
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 
   mail:
-    host: smtppro.zoho.com
-    port: 587
-    username: "admin@edumanabo.online"
-    password: "Kiren@096270"
+    host: smtp.gmail.com
+    port: 465
+    username: "cngitcompany@gmail.com"
+    password: "bgwn hhrh fekw bozq"
     protocol: smtp
     properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+      mail.smtp.ssl.enable: true
 
 logging:
   level:

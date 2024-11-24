@@ -15,7 +15,8 @@ public class CourseOverviewResponse {
     String title;
     String subTitle;
     String description;
-    String instructor;
+    String instructorId;
+    String instructorName;
     String mainTopic;
     String subTopic;
     String image;
