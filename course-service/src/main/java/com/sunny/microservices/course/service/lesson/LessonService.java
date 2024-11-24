@@ -99,6 +99,12 @@ public class LessonService {
 
                 examRepository.delete(exam);
             }
+            case "ARTICLE" -> {
+                Article article = articleRepository.findById(lesson.getType_id())
+                        .orElseThrow(()-> new AppException(ErrorCode.DOC_NOT_FOUND));
+
+                articleRepository.delete(article);
+            }
             case null, default -> {
                 return "có gì lạ lạ đang xảy ra";
             }

@@ -7,10 +7,10 @@
 		<artifactId>e-learning-microservices</artifactId>
 		<version>1.0-SNAPSHOT</version>
 	</parent>
-	<artifactId>order-service</artifactId>
+	<artifactId>payment-service</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>order-service</name>
-	<description>Order Service</description>
+	<name>payment-service</name>
+	<description>Payment Service</description>
 	<url/>
 	<licenses>
 		<license/>
@@ -64,49 +64,6 @@
 			<groupId>org.springframework.kafka</groupId>
 			<artifactId>spring-kafka-test</artifactId>
 			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>commons-io</groupId>
-			<artifactId>commons-io</artifactId>
-			<version>2.11.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.kafka</groupId>
-			<artifactId>kafka-clients</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springdoc</groupId>
-			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-			<version>2.2.0</version>
-		</dependency>
-
-		<!-- Swagger Annotations Jakarta -->
-		<dependency>
-			<groupId>io.swagger.core.v3</groupId>
-			<artifactId>swagger-annotations-jakarta</artifactId>
-			<version>2.2.10</version>
-		</dependency>
-
-		<!-- Swagger Core -->
-		<dependency>
-			<groupId>io.swagger.core.v3</groupId>
-			<artifactId>swagger-core</artifactId>
-			<version>2.2.10</version>
-		</dependency>
-		<dependency>
-			<groupId>com.sunny.microservices</groupId>
-			<artifactId>base-domain</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-			<scope>compile</scope>
-			<classifier>qa</classifier>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-security</artifactId>
 		</dependency>
 	</dependencies>
 	<dependencyManagement>
