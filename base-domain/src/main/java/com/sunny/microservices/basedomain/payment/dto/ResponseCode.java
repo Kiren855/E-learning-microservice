@@ -1,4 +1,4 @@
-package com.sunny.microservices.payment.constant;
+package com.sunny.microservices.basedomain.payment.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

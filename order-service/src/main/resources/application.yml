@@ -47,3 +47,6 @@ logging:
     org.apache.kafka.clients: WARN
     org.apache.kafka.common: WARN
     org.apache.kafka.clients.consumer: WARN
+
+payment-service:
+  url: http://localhost:8085/payment
