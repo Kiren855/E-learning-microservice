@@ -1,6 +1,7 @@
 package com.sunny.microservices.payment.constant;
 
-import com.example.vnpay.dto.response.IpnResponse;
+
+import com.sunny.microservices.payment.dto.response.IpnResponse;
 
 public class VnpIpnResponseConst {
     public static final IpnResponse SUCCESS = new IpnResponse("00", "Successful");
