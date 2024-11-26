@@ -18,21 +18,19 @@ import org.springframework.stereotype.Service;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class CourseCreateService {
     CourseRepository courseRepository;
-    UserClient userClient;
+    CourseProcessingService courseProcessingService;
     public String createCourse(CourseCreateRequest request) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();
-
-        var user = userClient.getProfile(userId);
 
         Course course = Course.builder().build();
         course.setTitle(request.getTitle());
         course.setMainTopic(request.getMainTopic());
         course.setInstructorId(userId);
-        course.setInstructorName(user.getUsername());
-
         courseRepository.save(course);
 
-        return "Tạo khoá học thành công";
+        courseProcessingService.processUpdateInstructorInCourse(userId, course);
+
+        return course.getId();
     }
 }

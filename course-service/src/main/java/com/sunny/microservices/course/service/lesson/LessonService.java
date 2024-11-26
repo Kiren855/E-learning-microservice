@@ -1,10 +1,14 @@
 package com.sunny.microservices.course.service.lesson;
 
 
-import com.sunny.microservices.basedomain.course.dto.DTO.LessonDetail;
+import com.sunny.microservices.basedomain.course.dto.DTO.LessonLearning;
 import com.sunny.microservices.course.client.AzureFileStorageClient;
+import com.sunny.microservices.course.dto.DTO.LessonDetail;
 import com.sunny.microservices.course.dto.DTO.LessonPreview;
 import com.sunny.microservices.course.dto.request.lesson.*;
+import com.sunny.microservices.course.dto.response.lesson.ArticleResponse;
+import com.sunny.microservices.course.dto.response.lesson.ExamResponse;
+import com.sunny.microservices.course.dto.response.lesson.VideoResponse;
 import com.sunny.microservices.course.entity.*;
 import com.sunny.microservices.course.exception.AppException;
 import com.sunny.microservices.course.exception.ErrorCode;
@@ -12,10 +16,8 @@ import com.sunny.microservices.course.repository.*;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -41,16 +43,14 @@ public class LessonService {
     ExamRepository examRepository;
     LessonProcessingService lessonProcessingService;
     ArticleRepository articleRepository;
+    ExamService examService;
     @Value("${azure.blob.video-container}")
-    @NonFinal
     String videoContainer;
 
     @Value("${azure.blob.doc-container}")
-    @NonFinal
     String docContainer;
 
     @Value("${azure.blob.thumbnail-container}")
-    @NonFinal
     String thumbnailContainer;
 
     public String updateLesson(String lessonId, LessonRequest request) {
@@ -116,7 +116,7 @@ public class LessonService {
 
         return "xoá bài học thành công";
     }
-    public String createVideoLesson(String sectionId, VideoLessonRequest request) throws IOException {
+    public String createVideoLesson(String sectionId, VideoLessonRequest request) {
        try {
            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
            String userId = authentication.getName();
@@ -173,7 +173,7 @@ public class LessonService {
         Exam exam = Exam.builder()
                 .title(request.getTitle())
                 .subTitle(request.getSubTitle())
-                .contents(mapQuestions(request.getContents())).build();
+                .contents(examService.mapQuestionRequestToEntity(request.getContents())).build();
 
         examRepository.save(exam);
 
@@ -196,28 +196,10 @@ public class LessonService {
                 Exam exam = examRepository.findById(examId)
                         .orElseThrow(()-> new AppException(ErrorCode.DOC_NOT_FOUND));
 
-                exam.setContents(mapQuestions(request.getContents()));
+                exam.setContents(examService.mapQuestionRequestToEntity(request.getContents()));
                 examRepository.save(exam);
         }
         return "Cập nhật bài kiểm tra thành công";
-    }
-
-    private List<Exam.Question> mapQuestions(List<ExamRequest.QuestionRequest> questionRequests) {
-        return questionRequests.stream().map(qr ->
-                Exam.Question.builder()
-                        .question(qr.getQuestion())
-                        .options(mapOptions(qr.getOptions()))
-                        .build()
-        ).collect(Collectors.toList());
-    }
-
-    private List<Exam.Option> mapOptions(List<ExamRequest.OptionRequest> optionRequests) {
-        return optionRequests.stream().map(or ->
-                Exam.Option.builder()
-                        .optionText(or.getOptionText())
-                        .isCorrect(or.getIsCorrect())
-                        .build()
-        ).collect(Collectors.toList());
     }
 
     public List<Lesson> findLessonsByIds(List<String> lessonIds) {
@@ -235,11 +217,27 @@ public class LessonService {
                             .type_id(lesson.getType_id());
 
                     if ("VIDEO".equals(lesson.getType())) {
-                        videoRepository.findById(lesson.getType_id()).ifPresent(video -> {
-                            builder.duration(video.getDuration());
-                        });
+                        videoRepository.findById(lesson.getType_id()).ifPresent(video -> builder.duration(video.getDuration()));
                     }
+                    return builder.build();
+                })
+                .collect(Collectors.toList());
+    }
 
+    public List<LessonLearning> mapToLessonLearnings(List<Lesson> lessons) {
+        return lessons.stream()
+                .sorted(Comparator.comparingInt(Lesson::getPartNumber))
+                .map(lesson -> {
+                    LessonLearning.LessonLearningBuilder builder = LessonLearning.builder()
+                            .id(lesson.getId())
+                            .name(lesson.getName())
+                            .type(lesson.getType())
+                            .type_id(lesson.getType_id())
+                            .partNumber(lesson.getPartNumber());
+
+                    if ("VIDEO".equals(lesson.getType())) {
+                        videoRepository.findById(lesson.getType_id()).ifPresent(video -> builder.duration(video.getDuration()));
+                    }
                     return builder.build();
                 })
                 .collect(Collectors.toList());
@@ -254,11 +252,33 @@ public class LessonService {
                             .name(lesson.getName())
                             .type(lesson.getType())
                             .type_id(lesson.getType_id())
-                            .partNumber(lesson.getPartNumber());
-
+                            .partNumber(lesson.getPartNumber())
+                            ;
                     if ("VIDEO".equals(lesson.getType())) {
                         videoRepository.findById(lesson.getType_id()).ifPresent(video -> {
-                            builder.duration(video.getDuration());
+                            VideoResponse videoResponse = VideoResponse.builder()
+                                    .id(video.getId())
+                                    .duration(video.getDuration())
+                                    .videoUrl(video.getVideoUrl())
+                                    .thumbnailUrl(video.getThumbnailUrl()).build();
+                            builder.video(videoResponse);
+                        });
+                    }
+                    else if ("EXAM".equals(lesson.getType())) {
+                        examRepository.findById(lesson.getType_id()).ifPresent(exam -> {
+                            ExamResponse examResponse = ExamResponse.builder()
+                                    .id(exam.getId())
+                                    .title(exam.getTitle())
+                                    .subTitle(exam.getSubTitle())
+                                    .contents(examService.mapQuestionEntityToResponse(exam.getContents())).build();
+                            builder.exam(examResponse);
+                        });
+                    } else if ("ARTICLE".equals(lesson.getType())) {
+                        articleRepository.findById(lesson.getType_id()).ifPresent(article -> {
+                            ArticleResponse articleResponse = ArticleResponse.builder()
+                                    .id(article.getId())
+                                    .content(article.getContent()).build();
+                            builder.article(articleResponse);
                         });
                     }
 
@@ -266,19 +286,15 @@ public class LessonService {
                 })
                 .collect(Collectors.toList());
     }
+
     private String extractFileName(String blobUrl) {
         return blobUrl.substring(blobUrl.lastIndexOf("/") + 1);
     }
-
-//    public ResponseEntity<?> getLessonDetail(String lessonId) {
-//
-//    }
 
     public String createArticle(String sectionId, ArticleLessonRequest request) {
         Section section = sectionRepository.findById(sectionId).orElseThrow(
                 () -> new AppException(ErrorCode.SECTION_NOT_FOUND)
         );
-
         Lesson lesson = Lesson.builder()
                 .name(request.getName())
                 .type("ARTICLE")
@@ -301,18 +317,15 @@ public class LessonService {
             Lesson lesson = lessonRepository.findById(lessonId)
                     .orElseThrow(()-> new AppException(ErrorCode.LESSON_NOT_FOUND));
 
-
-            String articleid = lesson.getType_id();
+            String articleId = lesson.getType_id();
             if(Objects.equals(lesson.getType(), "ARTICLE")) {
-                    Article article = articleRepository.findById(articleid)
+                    Article article = articleRepository.findById(articleId)
                             .orElseThrow(()-> new AppException(ErrorCode.DOC_NOT_FOUND));
 
                     article.setContent(content);
                     articleRepository.save(article);
             }
-
             return "Cập nhật bài viết thành công";
     }
-
 
 }

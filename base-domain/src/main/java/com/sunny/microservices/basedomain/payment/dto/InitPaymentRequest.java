@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.*;
 
+import java.util.List;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -20,4 +22,16 @@ public class InitPaymentRequest {
     private String txnRef;
 
     private long amount;
+
+    private List<Course> courses;
+
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Getter
+    @Setter
+    @Builder
+    public static class Course {
+        String courseName;
+        Integer price;
+    }
 }

@@ -5,12 +5,10 @@ import com.sunny.microservices.course.dto.request.course.CourseNotiRequest;
 import com.sunny.microservices.course.dto.request.course.CourseOverviewRequest;
 import com.sunny.microservices.course.dto.request.course.CourseRequirementRequest;
 import com.sunny.microservices.course.dto.request.course.CourseTargetRequest;
+import com.sunny.microservices.course.dto.response.course.CourseDetailResponse;
 import com.sunny.microservices.course.dto.response.course.CourseNotiResponse;
 import com.sunny.microservices.course.dto.response.course.CourseOverviewResponse;
-import com.sunny.microservices.course.service.course.CourseNotiService;
-import com.sunny.microservices.course.service.course.CourseOverviewService;
-import com.sunny.microservices.course.service.course.RequirementService;
-import com.sunny.microservices.course.service.course.TargetService;
+import com.sunny.microservices.course.service.course.*;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -36,9 +34,10 @@ public class CourseDetailController {
 
     @PutMapping("/overview/{courseId}")
     @PreAuthorize("hasRole('INSTRUCTOR')")
-    public ResponseEntity<ApiResponse<String>> updateCourseOverview(@PathVariable String courseId, CourseOverviewRequest request) {
-        ApiResponse<String> response = ApiResponse.<String>builder()
-                .message(courseOverviewService.updateOverviewCourse(courseId, request)).build();
+    public ResponseEntity<ApiResponse<CourseOverviewResponse>> updateCourseOverview(@PathVariable String courseId, CourseOverviewRequest request) {
+        ApiResponse<CourseOverviewResponse> response = ApiResponse.<CourseOverviewResponse>builder()
+                .message("Cập nhật tổng quan khoá học thành công")
+                .result(courseOverviewService.updateOverviewCourse(courseId, request)).build();
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
@@ -113,7 +112,7 @@ public class CourseDetailController {
     @GetMapping("/notify/{courseId}")
     public ResponseEntity<ApiResponse<CourseNotiResponse>> getCourseNotify(@PathVariable String courseId) {
             ApiResponse<CourseNotiResponse> response = ApiResponse.<CourseNotiResponse>builder()
-                    .message("Lấy thông báo chào mừng vào hoàn thành")
+                    .message("Lấy thông báo chào mừng và hoàn thành")
                     .result(courseNotiService.getCourseNoti(courseId)).build();
 
             return ResponseEntity.status(HttpStatus.OK).body(response);
@@ -128,9 +127,16 @@ public class CourseDetailController {
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
+    /////////////////////////////////////////////////////////////////////////////
+    ////// GET FULL DETAIL ABOUT COURSE /////////////////////////////////////////
 
-    ///////////////////////////////////////////////////////////////////////////////////
-    ////////// Price //////////////////////////////////////////////////////////////////
+    @GetMapping("/full-detail/{courseId}")
+    @PreAuthorize("hasRole('INSTRUCTOR') or hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<CourseDetailResponse>> getFullDetailCourse(@PathVariable String courseId) {
+        ApiResponse<CourseDetailResponse> response = ApiResponse.<CourseDetailResponse>builder()
+                .message("Lấy toàn bộ thông tin về khoá học thành công")
+                .result(courseOverviewService.getCourseDetail(courseId)).build();
 
-
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
 }

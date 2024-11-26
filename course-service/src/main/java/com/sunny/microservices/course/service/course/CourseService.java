@@ -1,8 +1,8 @@
 package com.sunny.microservices.course.service.course;
 
 import com.sunny.microservices.basedomain.course.dto.DTO.ReviewDetail;
-import com.sunny.microservices.basedomain.course.dto.DTO.SectionDetail;
-import com.sunny.microservices.basedomain.course.dto.response.CourseDetailResponse;
+import com.sunny.microservices.basedomain.course.dto.DTO.SectionLearning;
+import com.sunny.microservices.basedomain.course.dto.response.CourseLearningResponse;
 import com.sunny.microservices.course.dto.DTO.SectionPreview;
 import com.sunny.microservices.course.dto.DTO.SubmitCourseDto;
 import com.sunny.microservices.course.dto.response.course.CoursePreviewResponse;
@@ -20,7 +20,6 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -75,7 +74,7 @@ public class CourseService {
     public void deleteCourse(String courseId) {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
-        if(course.getIsDraft() == Boolean.TRUE) {
+        if(course.getIsDraft() == Boolean.FALSE) {
             throw new AppException(ErrorCode.COURSE_CANNOT_DELETE);
         }
         if(course.getSections().isEmpty()) {
@@ -86,17 +85,17 @@ public class CourseService {
         courseRepository.delete(course);
     }
 
-    public CourseDetailResponse getCourseDetail(String courseId) {
+    public CourseLearningResponse getCourseDetail(String courseId) {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
 
-        List<SectionDetail> sections = sectionService.findSectionsDetailByIds(course.getSections());
+        List<SectionLearning> sections = sectionService.findSectionLearningByIds(course.getSections());
         List<ReviewDetail> reviews = reviewService.findReviewsById(course.getReviews());
-        Double totalDuration = sections.stream().mapToDouble(SectionDetail::getDuration).sum();
+        Double totalDuration = sections.stream().mapToDouble(SectionLearning::getDuration).sum();
         String mainTopic = topicService.getMainTopicById(course.getMainTopic());
         String subTopic = topicService.getSubTopicById(course.getSubTopic());
 
-        return CourseDetailResponse.builder()
+        return CourseLearningResponse.builder()
                 .id(course.getId())
                 .title(course.getTitle())
                 .subTitle(course.getSubTitle())

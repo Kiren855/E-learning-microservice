@@ -1,9 +1,7 @@
 package com.sunny.microservices.course.dto.response.course;
 
-import com.sunny.microservices.basedomain.course.dto.DTO.TopicDetail;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import java.util.List;
 
 @Data
 @NoArgsConstructor

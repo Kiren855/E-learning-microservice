@@ -1,4 +1,4 @@
-package com.sunny.microservices.basedomain.course.dto.DTO;
+package com.sunny.microservices.course.dto.DTO;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -11,7 +11,9 @@ import java.util.List;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class SectionDetail {
+    String id;
     String name;
+    String partNumber;
     List<LessonDetail> lessons;
     Double duration;
 }

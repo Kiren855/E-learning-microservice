@@ -13,6 +13,7 @@ import java.util.List;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ExamResponse {
+    String id;
     String title;
     String subTitle;
     List<QuestionResponse> contents;

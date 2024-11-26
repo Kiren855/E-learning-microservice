@@ -1,6 +1,6 @@
 package com.sunny.microservices.course.controller.course;
 
-import com.sunny.microservices.basedomain.course.dto.response.CourseDetailResponse;
+import com.sunny.microservices.basedomain.course.dto.response.CourseLearningResponse;
 import com.sunny.microservices.course.service.course.CourseService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +20,7 @@ public class CourseClientController {
     CourseService courseService;
 
     @GetMapping("/detail/{courseId}")
-    public CourseDetailResponse getCourse(@PathVariable String courseId) {
+    public CourseLearningResponse getCourse(@PathVariable String courseId) {
         return courseService.getCourseDetail(courseId);
     }
 

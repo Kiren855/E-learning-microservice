@@ -32,6 +32,7 @@ public class CourseProcessingService {
     SubmitCourseProducer submitCourseProducer;
     ApproveCourseProducer approveCourseProducer;
     RejectionCourseProducer rejectionCourseProducer;
+    CourseRepository courseRepository;
     @Async("threadPoolTaskExecutor")
     public void processSubmitCourse(String courseId, String userId, String courseName) {
         ProfileResponse user = userClient.getProfile(userId);
@@ -76,6 +77,14 @@ public class CourseProcessingService {
                 .reason(reason).build();
 
         rejectionCourseProducer.sendMessage(event);
+    }
+
+    @Async("threadPoolTaskExecutor")
+    public void processUpdateInstructorInCourse(String userId, Course course) {
+        ProfileResponse user = userClient.getProfile(userId);
+
+        course.setInstructorName(user.getUsername());
+        courseRepository.save(course);
     }
 }
 

@@ -13,6 +13,8 @@ import java.util.List;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class VideoResponse {
+    String id;
     String videoUrl;
     String thumbnailUrl;
+    Double duration;
 }
