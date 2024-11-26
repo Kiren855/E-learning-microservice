@@ -27,6 +27,8 @@ public class CourseCreateService {
         course.setTitle(request.getTitle());
         course.setMainTopic(request.getMainTopic());
         course.setInstructorId(userId);
+        course.setPrice(0);
+
         courseRepository.save(course);
 
         courseProcessingService.processUpdateInstructorInCourse(userId, course);

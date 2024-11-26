@@ -1,6 +1,5 @@
-package com.sunny.microservices.course.dto.request.course;
+package com.sunny.microservices.course.dto.response.course;
 
-import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -11,6 +10,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class CourseTargetRequest {
+public class TargetAndRequireResponse {
     List<String> targetAudiences;
+    List<String> requirements;
 }

@@ -3,11 +3,9 @@ package com.sunny.microservices.course.controller.course;
 import com.sunny.microservices.course.dto.ApiResponse;
 import com.sunny.microservices.course.dto.request.course.CourseNotiRequest;
 import com.sunny.microservices.course.dto.request.course.CourseOverviewRequest;
-import com.sunny.microservices.course.dto.request.course.CourseRequirementRequest;
-import com.sunny.microservices.course.dto.request.course.CourseTargetRequest;
-import com.sunny.microservices.course.dto.response.course.CourseDetailResponse;
-import com.sunny.microservices.course.dto.response.course.CourseNotiResponse;
-import com.sunny.microservices.course.dto.response.course.CourseOverviewResponse;
+import com.sunny.microservices.course.dto.request.course.PriceRequest;
+import com.sunny.microservices.course.dto.request.course.TargetAndRequireRequest;
+import com.sunny.microservices.course.dto.response.course.*;
 import com.sunny.microservices.course.service.course.*;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +29,7 @@ public class CourseDetailController {
     /////// Couse Overview /////////////////////////////////////////////////////////////////////
 
     CourseOverviewService courseOverviewService;
+    TargetAndRequireService targetAndRequireService;
 
     @PutMapping("/overview/{courseId}")
     @PreAuthorize("hasRole('INSTRUCTOR')")
@@ -53,58 +52,45 @@ public class CourseDetailController {
 
     @PutMapping("/change-price/{courseId}")
     @PreAuthorize("hasRole('INSTRUCTOR')")
-    public ResponseEntity<ApiResponse<String>> changePrice(@PathVariable String courseId, @RequestBody Integer price) {
+    public ResponseEntity<ApiResponse<String>> changePrice(@PathVariable String courseId, @RequestBody PriceRequest request) {
         ApiResponse<String> response = ApiResponse.<String>builder()
-                .message(courseOverviewService.updatePrice(courseId, price)).build();
+                .message(courseOverviewService.updatePrice(courseId, request)).build();
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
+
+    @GetMapping("/get-price/{courseId}")
+    @PreAuthorize("hasRole('INSTRUCTOR')")
+    public ResponseEntity<ApiResponse<PriceResponse>> getPrice(@PathVariable String courseId) {
+        ApiResponse<PriceResponse> response = ApiResponse.<PriceResponse>builder()
+                .message("lấy giá tiền khoá học thành công")
+                .result(courseOverviewService.getPrice(courseId)).build();
+
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
      ////////////////////////////////////////////////////////////////////////////////////////////
-    /////// Requirement ////////////////////////////////////////////////////////////////////////
+    /////// Requirement And require////////////////////////////////////////////////////////////////////////
 
-    RequirementService requirementService;
-
-    @PutMapping("/requirement/{courseId}")
+    @PutMapping("/target-require/{courseId}")
     @PreAuthorize("hasRole('INSTRUCTOR')")
-    public ResponseEntity<ApiResponse<String>> updateRequirement(@PathVariable String courseId, CourseRequirementRequest request) {
+    public ResponseEntity<ApiResponse<String>> updateTargetAndRequire(@PathVariable String courseId,
+                                                                      @RequestBody TargetAndRequireRequest request) {
         ApiResponse<String> response = ApiResponse.<String>builder()
-                .message(requirementService.updateRequirement(courseId, request)).build();
+                .message(targetAndRequireService.updateTargetAndRequired(courseId, request)).build();
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    @GetMapping("/requirement/{courseId}")
-    public ResponseEntity<ApiResponse<List<String>>> getRequirement(@PathVariable String courseId) {
-        ApiResponse<List<String>> response = ApiResponse.<List<String>>builder()
-                .message("lấy danh sách yêu cầu thành công")
-                .result(requirementService.getRequirement(courseId)).build();
-
-        return ResponseEntity.status(HttpStatus.OK).body(response);
-    }
-
-    ////////////////////////////////////////////////////////////////////////////////////////////
-    /////// Target /////////////////////////////////////////////////////////////////////////////
-
-    TargetService targetService;
-
-    @PutMapping("/target/{courseId}")
+    @GetMapping("/target-require/{courseId}")
     @PreAuthorize("hasRole('INSTRUCTOR')")
-    public ResponseEntity<ApiResponse<String>> updateTarget(@PathVariable String courseId, CourseTargetRequest request) {
-        ApiResponse<String> response = ApiResponse.<String>builder()
-                .message(targetService.updateTarget(courseId, request)).build();
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
-    }
-
-    @GetMapping("/target/{courseId}")
-    public ResponseEntity<ApiResponse<List<String>>> getTarget(@PathVariable String courseId) {
-        ApiResponse<List<String>> response = ApiResponse.<List<String>>builder()
-                .message("lấy danh sách mục tiêu thành công")
-                .result(targetService.getTarget(courseId)).build();
+    public ResponseEntity<ApiResponse<TargetAndRequireResponse>> getTargetAndRequire(@PathVariable String courseId) {
+        ApiResponse<TargetAndRequireResponse> response = ApiResponse.<TargetAndRequireResponse>builder()
+                .message("lấy danh sách mục tiêu và yêu cầu thành công")
+                .result(targetAndRequireService.getTargetAndRequire(courseId)).build();
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
-
     ////////////////////////////////////////////////////////////////////////////
     ////////// Course Notification /////////////////////////////////////////////
 
@@ -139,4 +125,6 @@ public class CourseDetailController {
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
+
+
 }

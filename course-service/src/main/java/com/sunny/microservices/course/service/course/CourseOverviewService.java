@@ -3,8 +3,10 @@ package com.sunny.microservices.course.service.course;
 import com.sunny.microservices.course.client.AzureFileStorageClient;
 import com.sunny.microservices.course.dto.DTO.SectionDetail;
 import com.sunny.microservices.course.dto.request.course.CourseOverviewRequest;
+import com.sunny.microservices.course.dto.request.course.PriceRequest;
 import com.sunny.microservices.course.dto.response.course.CourseDetailResponse;
 import com.sunny.microservices.course.dto.response.course.CourseOverviewResponse;
+import com.sunny.microservices.course.dto.response.course.PriceResponse;
 import com.sunny.microservices.course.entity.Course;
 import com.sunny.microservices.course.exception.AppException;
 import com.sunny.microservices.course.exception.ErrorCode;
@@ -14,11 +16,13 @@ import com.sunny.microservices.course.service.TopicService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -32,6 +36,7 @@ public class CourseOverviewService {
     TopicService topicService;
     SectionService sectionService;
     @Value("${azure.blob.doc-container}")
+    @NonFinal
     String docContainer;
 
     public CourseOverviewResponse updateOverviewCourse(String courseId, CourseOverviewRequest request) {
@@ -100,14 +105,28 @@ public class CourseOverviewService {
                 .instructorId(course.getInstructorId())
                 .instructorName(course.getInstructorName())
                 .image(course.getImage())
+                .language(course.getLanguage())
                 .mainTopic(course.getMainTopic())
                 .subTopic(course.getSubTopic()).build();
     }
 
-    public String updatePrice(String courseId, Integer Price) {
+    public PriceResponse getPrice(String courseId) {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
-        course.setPrice(Price);
+        PriceResponse response = PriceResponse.builder().build();
+
+        if(course.getPrice() == null)
+            response.setPrice(0);
+        else
+            response.setPrice(course.getPrice());
+
+        return response;
+    }
+    public String updatePrice(String courseId, PriceRequest request) {
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
+        course.setPrice(request.getPrice());
+
         courseRepository.save(course);
 
         return "Thay đổi giá thành công";
@@ -118,11 +137,8 @@ public class CourseOverviewService {
                 .orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
 
         String mainTopic =  topicService.getMainTopicById(course.getMainTopic());
-        String subTopic = topicService.getSubTopicById(course.getSubTopic());
 
-        List<SectionDetail> sections = sectionService.findSectionDetailByIds(course.getSections());
-
-        return CourseDetailResponse.builder()
+        CourseDetailResponse response =  CourseDetailResponse.builder()
                 .id(courseId)
                 .image(course.getImage())
                 .title(course.getTitle())
@@ -131,14 +147,29 @@ public class CourseOverviewService {
                 .instructorId(course.getInstructorId())
                 .instructorName(course.getInstructorName())
                 .mainTopic(mainTopic)
-                .subTopic(subTopic)
+                .price(course.getPrice())
                 .language(course.getLanguage())
                 .requirements(course.getRequirements())
                 .targetAudiences(course.getTargetAudiences())
                 .welcome(course.getWelcome())
                 .congratulation(course.getCongratulation())
-                .sections(sections)
                 .build();
+
+        if(course.getSubTopic() == null)
+            response.setSubTopic("");
+        else {
+            String subTopic = topicService.getSubTopicById(course.getSubTopic());
+            response.setSubTopic(subTopic);
+        }
+
+        if(course.getSections() == null || course.getSections().isEmpty())
+            response.setSections(new ArrayList<>());
+        else {
+            List<SectionDetail> sections = sectionService.findSectionDetailByIds(course.getSections());
+            response.setSections(sections);
+        }
+
+        return response;
      }
 
 }

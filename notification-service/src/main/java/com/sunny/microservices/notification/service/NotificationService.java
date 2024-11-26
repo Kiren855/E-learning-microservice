@@ -34,7 +34,7 @@ public class NotificationService {
 
     @KafkaListener(topics = "submit-course")
     public void listen(SubmitCourseEvent event) {
-        String adminTo = "admin@edumanabo.online";
+        String adminTo = "cngitcompany@gmail.com";
         log.info("đã nhận được thông báo submit course");
 
         String subject = "Thông báo: Người dùng mong muốn submit khoá học";
@@ -48,7 +48,7 @@ public class NotificationService {
 
     @KafkaListener(topics = "approve-course")
     public void listen(ApproveCourseEvent event) {
-        String to = "kiren10122003@gmail.com";
+        String to = event.getEmail();
         log.info("Đã nhận được thông báo chấp thuận course");
 
         String subject = "Thông báo: Khoá học của bạn đã được chấp thuận";

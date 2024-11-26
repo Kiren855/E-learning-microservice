@@ -13,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,7 +31,7 @@ public class TopicService {
 
         return mainTopics.stream()
                 .map(topic -> {
-                    List<TopicPreview> subTopics = findTopicsByIds(topic.getSubTopic());
+                    List<TopicPreview> subTopics = findTopicsByIds(topic.getSubTopics());
                     return TopicResponse.builder()
                             .id(topic.getId())
                             .name(topic.getName())
