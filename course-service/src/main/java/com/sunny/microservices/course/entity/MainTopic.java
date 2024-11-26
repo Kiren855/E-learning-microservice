@@ -18,5 +18,5 @@ public class MainTopic {
     @Id
     String id;
     String name;
-    List<String> subTopic;
+    List<String> subTopics;
 }

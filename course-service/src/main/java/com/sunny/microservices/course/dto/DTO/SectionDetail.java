@@ -1,5 +1,6 @@
 package com.sunny.microservices.course.dto.DTO;
 
+
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -13,7 +14,7 @@ import java.util.List;
 public class SectionDetail {
     String id;
     String name;
-    String partNumber;
+    Integer partNumber;
     List<LessonDetail> lessons;
     Double duration;
 }

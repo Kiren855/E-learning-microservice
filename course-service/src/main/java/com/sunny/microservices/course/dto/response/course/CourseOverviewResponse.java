@@ -19,5 +19,7 @@ public class CourseOverviewResponse {
     String instructorName;
     String mainTopic;
     String subTopic;
+    String language;
     String image;
+
 }

@@ -125,7 +125,7 @@ public class VNPayService implements PaymentService {
         var hashPayload = new StringBuilder();
         var query = new StringBuilder();
         var fieldNames = new ArrayList<>(params.keySet());
-        Collections.sort(fieldNames);   // 1. Sort field names
+        Collections.sort(fieldNames);
 
         var itr = fieldNames.iterator();
         while (itr.hasNext()) {

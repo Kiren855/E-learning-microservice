@@ -24,6 +24,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -42,33 +43,54 @@ public class CourseService {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
 
-        List<SectionPreview> sections = sectionService.findSectionsByIds(course.getSections());
-        List<ReviewDetail> reviews = reviewService.findReviewsById(course.getReviews());
-        Double totalDuration = sections.stream().mapToDouble(SectionPreview::getDuration).sum();
-        String mainTopic = topicService.getMainTopicById(course.getMainTopic());
-        String subTopic = topicService.getSubTopicById(course.getSubTopic());
-
-        return CoursePreviewResponse.builder()
+        CoursePreviewResponse coursePreviewResponse = CoursePreviewResponse.builder()
                 .id(course.getId())
                 .image(course.getImage())
                 .title(course.getTitle())
                 .subTitle(course.getSubTitle())
                 .description(course.getDescription())
-                .mainTopic(mainTopic)
-                .subTopic(subTopic)
                 .instructorId(course.getInstructorId())
                 .instructorName(course.getInstructorName())
-                .sections(sections)
                 .rating(course.getRating())
                 .language(course.getLanguage())
                 .price(course.getPrice())
                 .discount(course.getDiscount())
-                .reviews(reviews)
                 .targetAudiences(course.getTargetAudiences())
                 .requirements(course.getRequirements())
-                .duration(totalDuration)
                 .welcome(course.getWelcome())
-                .congratulation(course.getCongratulation()).build();
+                .congratulation(course.getCongratulation())
+                .build();
+
+        if(course.getMainTopic() == null) {
+            coursePreviewResponse.setMainTopic("");
+        }else {
+            String mainTopic = topicService.getMainTopicById(course.getMainTopic());
+            coursePreviewResponse.setMainTopic(mainTopic);
+        }
+
+        if(course.getSubTopic() == null)
+            coursePreviewResponse.setSubTopic("");
+        else {
+            String subTopic = topicService.getSubTopicById(course.getSubTopic());
+            coursePreviewResponse.setSubTopic(subTopic);
+        }
+
+        if(course.getSections() == null || course.getSections().isEmpty())
+            coursePreviewResponse.setSections(new ArrayList<>());
+        else {
+            List<SectionPreview> sections = sectionService.findSectionsByIds(course.getSections());
+            Double totalDuration = sections.stream().mapToDouble(SectionPreview::getDuration).sum();
+            coursePreviewResponse.setDuration(totalDuration);
+            coursePreviewResponse.setSections(sections);
+        }
+
+        if(course.getReviews().isEmpty())
+            coursePreviewResponse.setReviews(new ArrayList<>());
+        else {
+            List<ReviewDetail> reviews = reviewService.findReviewsById(course.getReviews());
+            coursePreviewResponse.setReviews(reviews);
+        }
+         return coursePreviewResponse;
     }
 
     public void deleteCourse(String courseId) {
@@ -85,6 +107,8 @@ public class CourseService {
         courseRepository.delete(course);
     }
 
+    //////////////////////////////////////////////////////////////////
+    /////// CẦN XEM XÉT LẠI /////////////////////////////////////////
     public CourseLearningResponse getCourseDetail(String courseId) {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));

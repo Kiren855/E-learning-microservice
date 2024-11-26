@@ -16,6 +16,7 @@ import com.sunny.microservices.course.repository.*;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
@@ -45,12 +46,15 @@ public class LessonService {
     ArticleRepository articleRepository;
     ExamService examService;
     @Value("${azure.blob.video-container}")
+    @NonFinal
     String videoContainer;
 
     @Value("${azure.blob.doc-container}")
+    @NonFinal
     String docContainer;
 
     @Value("${azure.blob.thumbnail-container}")
+    @NonFinal
     String thumbnailContainer;
 
     public String updateLesson(String lessonId, LessonRequest request) {

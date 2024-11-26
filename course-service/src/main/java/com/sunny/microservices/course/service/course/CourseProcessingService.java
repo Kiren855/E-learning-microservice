@@ -1,15 +1,12 @@
 package com.sunny.microservices.course.service.course;
 
 import com.sunny.microservices.basedomain.course.dto.event.ApproveCourseEvent;
-import com.sunny.microservices.basedomain.course.dto.event.LessonCreatedEvent;
 import com.sunny.microservices.basedomain.course.dto.event.RejectionCourseEvent;
 import com.sunny.microservices.basedomain.course.dto.event.SubmitCourseEvent;
 import com.sunny.microservices.course.client.UserClient;
 import com.sunny.microservices.course.dto.response.ProfileResponse;
 import com.sunny.microservices.course.entity.Course;
 import com.sunny.microservices.course.entity.PendingCourse;
-import com.sunny.microservices.course.exception.AppException;
-import com.sunny.microservices.course.exception.ErrorCode;
 import com.sunny.microservices.course.kafka.ApproveCourseProducer;
 import com.sunny.microservices.course.kafka.RejectionCourseProducer;
 import com.sunny.microservices.course.kafka.SubmitCourseProducer;

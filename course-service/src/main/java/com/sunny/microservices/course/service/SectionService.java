@@ -26,6 +26,7 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -99,16 +100,19 @@ public class SectionService {
         return sections.stream()
                 .sorted(Comparator.comparingInt(Section::getPartNumber))
                 .map(section -> {
-            List<Lesson> lessons = lessonService.findLessonsByIds(section.getLessons());
+                    SectionPreview sectionPreview = SectionPreview.builder()
+                            .name(section.getName())
+                            .duration(section.getDuration()).build();
 
-            List<LessonPreview> lessonPreviews = lessonService.mapToLessonPreviews(lessons);
-
-            return SectionPreview.builder()
-                    .name(section.getName())
-                    .lessons(lessonPreviews)
-                    .duration(section.getDuration())
-                    .build();
-        }).collect(Collectors.toList());
+                    if(section.getLessons() == null || section.getLessons().isEmpty())
+                        sectionPreview.setLessons(new ArrayList<>());
+                    else {
+                        List<Lesson> lessons = lessonService.findLessonsByIds(section.getLessons());
+                        List<LessonPreview> lessonLearnings = lessonService.mapToLessonPreviews(lessons);
+                        sectionPreview.setLessons(lessonLearnings);
+                    }
+                    return sectionPreview;
+                }).collect(Collectors.toList());
     }
 
     public List<SectionLearning> findSectionLearningByIds(List<String> ids) {
@@ -117,14 +121,18 @@ public class SectionService {
         return sections.stream()
                 .sorted(Comparator.comparingInt(Section::getPartNumber))
                 .map(section -> {
-            List<Lesson> lessons = lessonService.findLessonsByIds(section.getLessons());
-            List<LessonLearning> lessonDetails = lessonService.mapToLessonLearnings(lessons);
-
-            return SectionLearning.builder()
+            SectionLearning sectionLearning = SectionLearning.builder()
                     .name(section.getName())
-                    .lessons(lessonDetails)
-                    .duration(section.getDuration())
-                    .build();
+                    .duration(section.getDuration()).build();
+
+            if(section.getLessons() == null || section.getLessons().isEmpty())
+                sectionLearning.setLessons(new ArrayList<>());
+            else {
+                List<Lesson> lessons = lessonService.findLessonsByIds(section.getLessons());
+                List<LessonLearning> lessonLearnings = lessonService.mapToLessonLearnings(lessons);
+                sectionLearning.setLessons(lessonLearnings);
+            }
+            return sectionLearning;
         }).collect(Collectors.toList());
     }
 
@@ -134,14 +142,21 @@ public class SectionService {
         return sections.stream()
                 .sorted(Comparator.comparingInt(Section::getPartNumber))
                 .map(section -> {
-                    List<Lesson> lessons = lessonService.findLessonsByIds(section.getLessons());
-                    List<LessonDetail> lessonDetails = lessonService.mapToLessonDetails(lessons);
 
-                    return SectionDetail.builder()
+                    SectionDetail sectionDetail = SectionDetail.builder()
+                            .id(section.getId())
                             .name(section.getName())
-                            .lessons(lessonDetails)
-                            .duration(section.getDuration())
-                            .build();
+                            .partNumber(section.getPartNumber())
+                            .duration(section.getDuration()).build();
+
+                    if(section.getLessons() == null || section.getLessons().isEmpty())
+                        sectionDetail.setLessons(new ArrayList<>());
+                    else {
+                        List<Lesson> lessons = lessonService.findLessonsByIds(section.getLessons());
+                        List<LessonDetail> lessonDetails = lessonService.mapToLessonDetails(lessons);
+                        sectionDetail.setLessons(lessonDetails);
+                    }
+                    return sectionDetail;
                 }).collect(Collectors.toList());
     }
 }
