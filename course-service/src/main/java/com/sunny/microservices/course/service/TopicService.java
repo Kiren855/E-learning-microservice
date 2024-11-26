@@ -1,8 +1,6 @@
 package com.sunny.microservices.course.service;
 
-import com.sunny.microservices.basedomain.course.dto.DTO.TopicDetail;
 import com.sunny.microservices.course.dto.DTO.TopicPreview;
-import com.sunny.microservices.course.dto.request.TopicRequest;
 import com.sunny.microservices.course.dto.response.TopicResponse;
 import com.sunny.microservices.course.entity.MainTopic;
 import com.sunny.microservices.course.entity.SubTopic;

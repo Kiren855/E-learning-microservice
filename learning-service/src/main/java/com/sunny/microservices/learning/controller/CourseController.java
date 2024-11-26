@@ -1,6 +1,6 @@
 package com.sunny.microservices.learning.controller;
 
-import com.sunny.microservices.basedomain.course.dto.response.CourseDetailResponse;
+import com.sunny.microservices.basedomain.course.dto.response.CourseLearningResponse;
 import com.sunny.microservices.learning.dto.ApiResponse;
 import com.sunny.microservices.learning.service.EnrollmentService;
 import lombok.AccessLevel;
@@ -24,7 +24,7 @@ public class CourseController {
     EnrollmentService enrollmentService;
     @GetMapping("/{courseId}")
     public ResponseEntity<?> getCourse(@PathVariable String courseId){
-        ApiResponse<CourseDetailResponse> response = ApiResponse.<CourseDetailResponse>builder()
+        ApiResponse<CourseLearningResponse> response = ApiResponse.<CourseLearningResponse>builder()
                 .message("lấy thông tin khoá học thành công")
                 .result(enrollmentService.getCourse(courseId)).build();
 

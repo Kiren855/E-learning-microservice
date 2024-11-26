@@ -18,6 +18,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -34,9 +36,12 @@ public class OrderService {
 
         List<Cart> carts = cartService.getCoursesInCart();
 
-        int totalPrice = carts.stream()
-                .mapToInt(Cart::getPrice)
-                .sum();
+        int totalPrice = carts.stream().mapToInt(Cart::getPrice).sum();
+
+        List<InitPaymentRequest.Course> courses = carts.stream().map(cart -> InitPaymentRequest.Course.builder()
+                .courseName(cart.getCourseName())
+                .price(cart.getPrice()).build()).toList();
+
 
         String orderId = UUID.randomUUID().toString().substring(0, 10);
         String requestId = UUID.randomUUID().toString().substring(0, 12);
@@ -45,6 +50,7 @@ public class OrderService {
                 .userId(userId)
                 .amount(totalPrice)
                 .txnRef(orderId)
+                .courses(courses)
                 .ipAddress(request.getIpAddress())
                 .requestId(requestId)
                 .build();

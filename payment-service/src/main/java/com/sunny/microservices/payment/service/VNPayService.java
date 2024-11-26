@@ -54,6 +54,8 @@ public class VNPayService implements PaymentService {
         var orderInfo = buildPaymentDetail(request);
         var requestId = request.getRequestId();
 
+        var courses = request.getCourses();
+
         Map<String, String> params = new HashMap<>();
 
         params.put(VNPayParams.VERSION, VERSION);

@@ -1,12 +1,10 @@
 package com.sunny.microservices.course.dto.response.course;
 
-
-import com.sunny.microservices.basedomain.course.dto.DTO.ReviewDetail;
+import com.sunny.microservices.course.dto.DTO.SectionDetail;
 import com.sunny.microservices.course.dto.DTO.SectionPreview;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.io.Serializable;
 import java.util.List;
 
 @Data
@@ -14,7 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class CoursePreviewResponse  implements Serializable {
+public class CourseDetailResponse {
     String id;
     String image;
     String title;
@@ -24,15 +22,11 @@ public class CoursePreviewResponse  implements Serializable {
     String subTopic;
     String instructorId;
     String instructorName;
-    Double duration;
-    Double rating;
     String language;
     Integer price;
-    Double discount;
     String welcome;
     String congratulation;
-    List<ReviewDetail> reviews;
     List<String> targetAudiences;
     List<String> requirements;
-    List<SectionPreview> sections;
+    List<SectionDetail> sections;
 }

@@ -43,7 +43,8 @@ public class CourseController {
     @PreAuthorize("hasRole('INSTRUCTOR')")
     public ResponseEntity<ApiResponse<String>> createCourse(@RequestBody CourseCreateRequest request) {
         ApiResponse<String> response = ApiResponse.<String>builder()
-                .message(courseCreateService.createCourse(request)).build();
+                .message("tạo khoá học thành côngb ")
+                .result(courseCreateService.createCourse(request)).build();
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
