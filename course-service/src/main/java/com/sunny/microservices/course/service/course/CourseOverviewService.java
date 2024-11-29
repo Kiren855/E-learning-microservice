@@ -1,5 +1,6 @@
 package com.sunny.microservices.course.service.course;
 
+import com.sunny.microservices.basedomain.course.dto.response.CourseLearningResponse;
 import com.sunny.microservices.course.client.AzureFileStorageClient;
 import com.sunny.microservices.course.dto.DTO.SectionDetail;
 import com.sunny.microservices.course.dto.request.course.CourseOverviewRequest;
@@ -19,6 +20,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -35,10 +37,12 @@ public class CourseOverviewService {
     CourseRepository courseRepository;
     TopicService topicService;
     SectionService sectionService;
+    CourseService courseService;
     @Value("${azure.blob.doc-container}")
     @NonFinal
     String docContainer;
 
+    @CacheEvict(value = {"course-client"}, allEntries = true)
     public CourseOverviewResponse updateOverviewCourse(String courseId, CourseOverviewRequest request) {
         try {
             Course course = courseRepository.findById(courseId)
@@ -79,6 +83,7 @@ public class CourseOverviewService {
             }
 
             courseRepository.save(course);
+
             return CourseOverviewResponse.builder()
                     .title(course.getTitle())
                     .subTitle(course.getSubTitle())
@@ -122,6 +127,7 @@ public class CourseOverviewService {
 
         return response;
     }
+
     public String updatePrice(String courseId, PriceRequest request) {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));

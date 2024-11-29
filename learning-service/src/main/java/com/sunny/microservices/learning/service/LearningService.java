@@ -15,8 +15,6 @@ import org.springframework.stereotype.Service;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class LearningService {
         CourseClient courseClient;
-
-        @Cacheable(value = "courses", key = "#courseId")
         public CourseLearningResponse getDetailCourseForLearning(String courseId) {
             return courseClient.getCourseDetail(courseId);
         }

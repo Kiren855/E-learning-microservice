@@ -3,8 +3,8 @@ package com.sunny.microservices.order.controller;
 
 import com.sunny.microservices.order.dto.ApiResponse;
 import com.sunny.microservices.order.dto.request.WishCourseRequest;
+import com.sunny.microservices.order.dto.response.AWishResponse;
 import com.sunny.microservices.order.dto.response.WishListResponse;
-import com.sunny.microservices.order.entity.WishList;
 import com.sunny.microservices.order.service.WishListService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -34,9 +34,10 @@ public class WishListController {
     }
 
     @PostMapping()
-    public ResponseEntity<ApiResponse<String>> addCourseToWishList(@RequestBody WishCourseRequest request) {
-        ApiResponse<String> response = ApiResponse.<String>builder()
-                .message(wishListService.addCourseToWishList(request)).build();
+    public ResponseEntity<ApiResponse<AWishResponse>> addCourseToWishList(@RequestBody WishCourseRequest request) {
+        ApiResponse<AWishResponse> response = ApiResponse.<AWishResponse>builder()
+                .message("thêm vào danh sách ước thành công")
+                .result(wishListService.addCourseToWishList(request)).build();
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }

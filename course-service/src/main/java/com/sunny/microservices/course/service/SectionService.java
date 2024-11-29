@@ -15,16 +15,12 @@ import com.sunny.microservices.course.exception.AppException;
 import com.sunny.microservices.course.exception.ErrorCode;
 import com.sunny.microservices.course.repository.CourseRepository;
 import com.sunny.microservices.course.repository.SectionRepository;
-import com.sunny.microservices.course.service.lesson.LessonService;
+import com.sunny.microservices.course.service.lesson.GetLessonService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.bson.types.ObjectId;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -39,67 +35,72 @@ import java.util.stream.Collectors;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class SectionService {
 
-        SectionRepository sectionRepository;
-        MongoTemplate mongoTemplate;
-        LessonService lessonService;
-        CourseRepository courseRepository;
-        public IdResponse createSection(String courseId, SectionRequest request) {
-            try{
-                var section = Section.builder()
+    SectionRepository sectionRepository;
+    GetLessonService getLessonService;
+    CourseRepository courseRepository;
+
+    public IdResponse createSection(String courseId, SectionRequest request) {
+        try{
+            Section section = Section.builder()
                         .name(request.getName())
                         .partNumber(request.getPartNumber())
                         .duration(Duration.ofSeconds(0).getSeconds() * 1.0)
                         .totalLesson(0).build();
-                section.setLessons(new ArrayList<>());
-                sectionRepository.save(section);
 
-                mongoTemplate.updateFirst(new Query(Criteria.where("_id").is(courseId)),
-                        new Update().addToSet("sections", section.getId()),
-                        Course.class);
-
-                return IdResponse.builder().Id(section.getId()).build();
-            }catch (Exception e) {
-                throw new AppException(ErrorCode.CREATE_FAILED);
-            }
-        }
-
-        public String updateSection(String sectionId, SectionRequest request) {
-            var section = sectionRepository.findById(sectionId)
-                    .orElseThrow(() -> new AppException(ErrorCode.SECTION_NOT_FOUND));
-
-            if(request.getName() != null)
-                section.setName(request.getName());
-
-            if(request.getPartNumber() != null)
-                section.setPartNumber(request.getPartNumber());
-
+            section.setLessons(new ArrayList<>());
             sectionRepository.save(section);
 
-            return "cập nhật thông tin phần học thành công";
-        }
-
-        public String deleteSection(String courseId, String sectionId) {
-            try {
-                var course = courseRepository.findById(courseId)
+            Course course = courseRepository.findById(courseId)
                         .orElseThrow(()-> new AppException(ErrorCode.COURSE_NOT_FOUND));
 
-                var section = sectionRepository.findById(sectionId)
+            if (course.getSections() == null) {
+                course.setSections(new ArrayList<>());
+            }
+
+            course.getSections().add(section.getId());
+            courseRepository.save(course);
+
+            return IdResponse.builder().Id(section.getId()).build();
+        }catch (Exception e) {
+            throw new AppException(ErrorCode.CREATE_FAILED);
+        }
+    }
+
+    public String updateSection(String sectionId, SectionRequest request) {
+        var section = sectionRepository.findById(sectionId)
+                    .orElseThrow(() -> new AppException(ErrorCode.SECTION_NOT_FOUND));
+
+        if(request.getName() != null)
+                section.setName(request.getName());
+
+        if(request.getPartNumber() != null)
+                section.setPartNumber(request.getPartNumber());
+        sectionRepository.save(section);
+            return "cập nhật thông tin phần học thành công";
+    }
+
+    public String deleteSection(String courseId, String sectionId) {
+        try {
+            var course = courseRepository.findById(courseId)
+                        .orElseThrow(()-> new AppException(ErrorCode.COURSE_NOT_FOUND));
+
+            var section = sectionRepository.findById(sectionId)
                         .orElseThrow(() -> new AppException(ErrorCode.SECTION_NOT_FOUND));
 
-                if (section.getLessons() == null || section.getLessons().isEmpty()) {
+            if (section.getLessons() == null || section.getLessons().isEmpty()) {
                     course.getSections().removeIf(s -> s.equals(sectionId));
 
                     courseRepository.save(course);
                     sectionRepository.delete(section);
                     return "xoá phần học thành công";
-                } else {
+            } else {
                     throw new AppException(ErrorCode.LESSON_NOT_EMPTY);
-                }
-
-            }catch (Exception e){
-                throw new AppException(ErrorCode.DELETE_FAILED);
             }
+
+        }catch (Exception e){
+                throw new AppException(ErrorCode.DELETE_FAILED);
         }
+    }
 
     public List<SectionPreview> findSectionsByIds(List<String> sectionIds) {
         List<Section> sections = sectionRepository.findAllById(sectionIds);
@@ -114,8 +115,8 @@ public class SectionService {
                     if(section.getLessons() == null || section.getLessons().isEmpty())
                         sectionPreview.setLessons(new ArrayList<>());
                     else {
-                        List<Lesson> lessons = lessonService.findLessonsByIds(section.getLessons());
-                        List<LessonPreview> lessonLearnings = lessonService.mapToLessonPreviews(lessons);
+                        List<Lesson> lessons = getLessonService.findLessonsByIds(section.getLessons());
+                        List<LessonPreview> lessonLearnings = getLessonService.mapToLessonPreviews(lessons);
                         sectionPreview.setLessons(lessonLearnings);
                     }
                     return sectionPreview;
@@ -135,8 +136,8 @@ public class SectionService {
             if(section.getLessons() == null || section.getLessons().isEmpty())
                 sectionLearning.setLessons(new ArrayList<>());
             else {
-                List<Lesson> lessons = lessonService.findLessonsByIds(section.getLessons());
-                List<LessonLearning> lessonLearnings = lessonService.mapToLessonLearnings(lessons);
+                List<Lesson> lessons = getLessonService.findLessonsByIds(section.getLessons());
+                List<LessonLearning> lessonLearnings = getLessonService.mapToLessonLearnings(lessons);
                 sectionLearning.setLessons(lessonLearnings);
             }
             return sectionLearning;
@@ -159,8 +160,8 @@ public class SectionService {
                     if(section.getLessons() == null || section.getLessons().isEmpty())
                         sectionDetail.setLessons(new ArrayList<>());
                     else {
-                        List<Lesson> lessons = lessonService.findLessonsByIds(section.getLessons());
-                        List<LessonDetail> lessonDetails = lessonService.mapToLessonDetails(lessons);
+                        List<Lesson> lessons = getLessonService.findLessonsByIds(section.getLessons());
+                        List<LessonDetail> lessonDetails = getLessonService.mapToLessonDetails(lessons);
                         sectionDetail.setLessons(lessonDetails);
                     }
                     return sectionDetail;

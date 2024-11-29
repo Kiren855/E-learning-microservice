@@ -13,6 +13,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -29,6 +31,8 @@ public class CourseCreateService {
         course.setMainTopic(request.getMainTopic());
         course.setInstructorId(userId);
         course.setPrice(0);
+        course.setSections(new ArrayList<>());
+        course.setIsDraft(Boolean.TRUE);
 
         courseRepository.save(course);
 

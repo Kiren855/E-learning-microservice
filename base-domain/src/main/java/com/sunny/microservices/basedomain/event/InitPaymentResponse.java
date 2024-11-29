@@ -1,4 +1,4 @@
-package com.sunny.microservices.basedomain.payment.dto;
+package com.sunny.microservices.basedomain.event;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;

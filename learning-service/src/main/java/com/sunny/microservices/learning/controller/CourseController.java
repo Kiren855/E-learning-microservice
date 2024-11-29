@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class CourseController {
 
-    EnrollmentService enrollmentService;
     LearningService learningService;
     @GetMapping("/{courseId}")
     public ResponseEntity<ApiResponse<CourseLearningResponse>> getCourse(@PathVariable String courseId){

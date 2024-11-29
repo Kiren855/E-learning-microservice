@@ -13,6 +13,7 @@ public class AWishResponse {
     String id;
     String userId;
     String courseId;
+    String image;
     String instructorName;
     String courseName;
     Integer price;

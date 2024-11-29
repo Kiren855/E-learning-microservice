@@ -14,6 +14,7 @@ public class ACartResponse {
     String id;
     String userId;
     String courseId;
+    String image;
     String instructorName;
     String courseName;
     Integer price;

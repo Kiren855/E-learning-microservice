@@ -10,6 +10,7 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class WishCourseRequest {
     String courseId;
+    String image;
     String instructorName;
     String courseName;
     Integer price;

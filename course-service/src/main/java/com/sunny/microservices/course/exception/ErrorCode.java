@@ -37,6 +37,7 @@ public enum ErrorCode {
     TOPIC_REQUIRED(2025, "Cần nhập topic chính", HttpStatus.BAD_REQUEST),
     TOPIC_NOT_FOUND(2026, "Không tìm thấy topic", HttpStatus.BAD_REQUEST),
     COURSE_NOTI_NOT_FOUND(2027, "Không tìm thấy thông báo khoá học", HttpStatus.BAD_REQUEST),
+    COURSE_IS_PENDING(2028, "Khoá học đang trong quá trình chờ duyệt", HttpStatus.BAD_REQUEST)
     ;
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
         this.code = code;

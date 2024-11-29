@@ -21,6 +21,7 @@ public class Cart {
     @Indexed
     String userId;
     String courseId;
+    String image;
     String instructorName;
     String courseName;
     Integer price;

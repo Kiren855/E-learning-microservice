@@ -27,7 +27,7 @@ public class CartController {
     @GetMapping()
     public ResponseEntity<ApiResponse<CartResponse>> getCourseInCart(){
         ApiResponse<CartResponse> response = ApiResponse.<CartResponse>builder()
-                .message("lấy danh sách ước thành công")
+                .message("lấy giỏ hàng thành công")
                 .result(cartService.getCoursesInCart()).build();
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
