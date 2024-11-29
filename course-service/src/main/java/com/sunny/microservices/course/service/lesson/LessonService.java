@@ -6,6 +6,7 @@ import com.sunny.microservices.course.client.AzureFileStorageClient;
 import com.sunny.microservices.course.dto.DTO.LessonDetail;
 import com.sunny.microservices.course.dto.DTO.LessonPreview;
 import com.sunny.microservices.course.dto.request.lesson.*;
+import com.sunny.microservices.course.dto.response.IdResponse;
 import com.sunny.microservices.course.dto.response.lesson.ArticleResponse;
 import com.sunny.microservices.course.dto.response.lesson.ExamResponse;
 import com.sunny.microservices.course.dto.response.lesson.VideoResponse;
@@ -26,6 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -61,8 +63,13 @@ public class LessonService {
         Lesson lesson = lessonRepository.findById(lessonId)
                 .orElseThrow(() -> new AppException(ErrorCode.LESSON_NOT_FOUND));
 
-        lesson.setName(request.getName());
-        lesson.setPartNumber(request.getPartNumber());
+        if(request.getName() != null)
+            lesson.setName(request.getName());
+
+        if(request.getPartNumber() != null)
+            lesson.setPartNumber(request.getPartNumber());
+
+        lessonRepository.save(lesson);
 
         return "Cập nhật bài giảng thành công";
     }
@@ -114,30 +121,43 @@ public class LessonService {
             }
         }
 
-        section.getLessons().removeIf(existingLessonId -> existingLessonId.equals(lessonId));
+        section.getLessons().removeIf(c-> c.equals(lessonId));
+        section.setTotalLesson(section.getTotalLesson() - 1);
         lessonRepository.delete(lesson);
         sectionRepository.save(section);
 
         return "xoá bài học thành công";
     }
-    public String createVideoLesson(String sectionId, VideoLessonRequest request) {
+    public IdResponse createVideoLesson(String sectionId, VideoLessonRequest request) {
        try {
            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
            String userId = authentication.getName();
+           Section section = sectionRepository.findById(sectionId).orElseThrow(
+                   () -> new AppException(ErrorCode.SECTION_NOT_FOUND)
+           );
 
            String nameLesson = request.getName();
-           Integer partNumber = request.getPartNumber();
            Double duration = request.getDuration();
            MultipartFile videoFile = request.getVideoFile();
            MultipartFile thumbnailFile = request.getThumbnailFile();
            String videoName = videoFile.getOriginalFilename();
            String thumbnailName = thumbnailFile.getOriginalFilename();
+           Integer partNumber =  section.getTotalLesson() + 1;
 
-           lessonProcessingService.processCreateVideoLesson(userId, sectionId, nameLesson, partNumber, duration,
+           if(request.getPartNumber() != null)
+                partNumber = request.getPartNumber();
+
+           Lesson lesson = Lesson.builder()
+                   .name(nameLesson)
+                   .type("VIDEO")
+                   .partNumber(partNumber)
+                   .comments(new ArrayList<>()).build();
+
+           lessonProcessingService.processCreateVideoLesson(userId, section, lesson, duration,
                    videoName ,IOUtils.toByteArray(videoFile.getInputStream()),
                    thumbnailName, IOUtils.toByteArray(thumbnailFile.getInputStream()));
 
-           return "Hệ thống đã nhận được yêu cầu và đang tiến hành upload bài học này";
+           return IdResponse.builder().Id(lesson.getId()).build();
        }catch (IOException e) {
            throw new AppException(ErrorCode.FILE_INVALID);
        }
@@ -163,15 +183,19 @@ public class LessonService {
         }
     }
 
-    public String createExam(String sectionId, ExamRequest request) {
+    public IdResponse createExam(String sectionId, ExamRequest request) {
         Section section = sectionRepository.findById(sectionId).orElseThrow(
                 () -> new AppException(ErrorCode.SECTION_NOT_FOUND)
         );
 
+        Integer partNumber = section.getTotalLesson() + 1;
+        if(request.getPartNumber() != null)
+            partNumber = request.getPartNumber();
+
         Lesson lesson = Lesson.builder()
                 .name(request.getName())
                 .type("EXAM")
-                .partNumber(request.getPartNumber())
+                .partNumber(partNumber)
                 .build();
 
         Exam exam = Exam.builder()
@@ -185,9 +209,10 @@ public class LessonService {
         lessonRepository.save(lesson);
 
         section.getLessons().add(lesson.getId());
+        section.setTotalLesson(section.getTotalLesson() + 1);
         sectionRepository.save(section);
 
-        return "Tạo thành công bài kiểm tra";
+        return IdResponse.builder().Id(lesson.getId()).build();
     }
 
     public String updateExam(String lessonId, ExamRequest request) {
@@ -295,14 +320,19 @@ public class LessonService {
         return blobUrl.substring(blobUrl.lastIndexOf("/") + 1);
     }
 
-    public String createArticle(String sectionId, ArticleLessonRequest request) {
+    public IdResponse createArticle(String sectionId, ArticleLessonRequest request) {
         Section section = sectionRepository.findById(sectionId).orElseThrow(
                 () -> new AppException(ErrorCode.SECTION_NOT_FOUND)
         );
+
+        Integer partNumber = section.getTotalLesson() + 1;
+        if(request.getPartNumber() != null)
+            partNumber = request.getPartNumber();
+
         Lesson lesson = Lesson.builder()
                 .name(request.getName())
                 .type("ARTICLE")
-                .partNumber(request.getPartNumber())
+                .partNumber(partNumber)
                 .build();
 
         Article article = Article.builder()
@@ -312,12 +342,13 @@ public class LessonService {
         lesson.setType_id(article.getId());
         lessonRepository.save(lesson);
         section.getLessons().add(lesson.getId());
+        section.setTotalLesson(section.getTotalLesson() + 1);
         sectionRepository.save(section);
 
-        return "Tạo bài viết thành công";
+        return IdResponse.builder().Id(lesson.getId()).build();
     }
 
-    public String updateArticle(String lessonId, String content) {
+    public String updateArticle(String lessonId, ArticleLessonRequest request) {
             Lesson lesson = lessonRepository.findById(lessonId)
                     .orElseThrow(()-> new AppException(ErrorCode.LESSON_NOT_FOUND));
 
@@ -326,8 +357,10 @@ public class LessonService {
                     Article article = articleRepository.findById(articleId)
                             .orElseThrow(()-> new AppException(ErrorCode.DOC_NOT_FOUND));
 
-                    article.setContent(content);
-                    articleRepository.save(article);
+                    if(request.getContent() != null) {
+                        article.setContent(request.getContent());
+                        articleRepository.save(article);
+                    }
             }
             return "Cập nhật bài viết thành công";
     }

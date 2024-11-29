@@ -4,6 +4,7 @@ package com.sunny.microservices.course.service;
 import com.sunny.microservices.basedomain.course.dto.DTO.ReviewDetail;
 import com.sunny.microservices.course.client.UserClient;
 import com.sunny.microservices.course.dto.request.ReviewRequest;
+import com.sunny.microservices.course.dto.response.IdResponse;
 import com.sunny.microservices.course.entity.Course;
 import com.sunny.microservices.course.entity.Review;
 import com.sunny.microservices.course.exception.AppException;
@@ -31,7 +32,7 @@ public class ReviewService {
     CourseRepository courseRepository;
     UserClient userClient;
 
-    public String createReview(String courseId, ReviewRequest request) {
+    public IdResponse createReview(String courseId, ReviewRequest request) {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
 
@@ -55,7 +56,8 @@ public class ReviewService {
         course.getReviews().add(review.getId());
         courseRepository.save(course);
 
-        return "thêm đánh giá thành công";
+        return IdResponse.builder()
+                .Id(review.getId()).build();
     }
 
     public String updateReview(String reviewId, ReviewRequest request) {

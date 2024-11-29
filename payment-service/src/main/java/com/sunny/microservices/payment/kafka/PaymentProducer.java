@@ -1,6 +1,8 @@
-package com.sunny.microservices.course.kafka;
+package com.sunny.microservices.payment.kafka;
 
-import com.sunny.microservices.basedomain.event.LessonCreatedEvent;
+import com.sunny.microservices.basedomain.event.ApproveCourseEvent;
+import com.sunny.microservices.basedomain.event.PaymentEvent;
+import com.sunny.microservices.payment.entity.PaymentHistory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -11,13 +13,13 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class LessonProducer {
-    private final KafkaTemplate<String, LessonCreatedEvent> kafkaTemplate;
+public class PaymentProducer {
+    private final KafkaTemplate<String, PaymentEvent> kafkaTemplate;
 
-    @Value("${spring.kafka.topic.lesson-created}")
+    @Value("payment-success")
     private String topicName;
-    public void sendMessage(LessonCreatedEvent event) {
-        Message<LessonCreatedEvent> message = MessageBuilder
+    public void sendMessage(PaymentEvent event) {
+        Message<PaymentEvent> message = MessageBuilder
                 .withPayload(event)
                 .setHeader(KafkaHeaders.TOPIC, topicName)
                 .build();

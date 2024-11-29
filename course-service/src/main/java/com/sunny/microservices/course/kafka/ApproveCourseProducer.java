@@ -1,8 +1,7 @@
 package com.sunny.microservices.course.kafka;
 
 
-import com.sunny.microservices.basedomain.course.dto.event.ApproveCourseEvent;
-import com.sunny.microservices.basedomain.course.dto.event.SubmitCourseEvent;
+import com.sunny.microservices.basedomain.event.ApproveCourseEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;

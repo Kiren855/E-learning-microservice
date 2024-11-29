@@ -1,8 +1,8 @@
 package com.sunny.microservices.course.service.course;
 
-import com.sunny.microservices.basedomain.course.dto.event.ApproveCourseEvent;
-import com.sunny.microservices.basedomain.course.dto.event.RejectionCourseEvent;
-import com.sunny.microservices.basedomain.course.dto.event.SubmitCourseEvent;
+import com.sunny.microservices.basedomain.event.ApproveCourseEvent;
+import com.sunny.microservices.basedomain.event.RejectionCourseEvent;
+import com.sunny.microservices.basedomain.event.SubmitCourseEvent;
 import com.sunny.microservices.course.client.UserClient;
 import com.sunny.microservices.course.dto.response.ProfileResponse;
 import com.sunny.microservices.course.entity.Course;

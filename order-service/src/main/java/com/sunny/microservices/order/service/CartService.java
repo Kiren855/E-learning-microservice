@@ -1,6 +1,9 @@
 package com.sunny.microservices.order.service;
 
+import com.sunny.microservices.basedomain.event.PaymentEvent;
 import com.sunny.microservices.order.dto.request.CartCourseRequest;
+import com.sunny.microservices.order.dto.response.ACartResponse;
+import com.sunny.microservices.order.dto.response.CartResponse;
 import com.sunny.microservices.order.entity.Cart;
 import com.sunny.microservices.order.entity.WishList;
 import com.sunny.microservices.order.exception.AppException;
@@ -14,10 +17,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -26,7 +32,7 @@ import java.util.Optional;
 public class CartService {
     CartRepository cartRepository;
     WishListRepository wishListRepository;
-    public String addCourseToCart(CartCourseRequest request) {
+    public ACartResponse addCourseToCart(CartCourseRequest request) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();
 
@@ -36,12 +42,20 @@ public class CartService {
         }else {
             Cart newCart = Cart.builder()
                     .userId(userId)
+                    .instructorName(request.getInstructorName())
                     .courseId(request.getCourseId())
                     .courseName(request.getCourseName())
                     .price(request.getPrice()).build();
             cartRepository.save(newCart);
+
+            return ACartResponse.builder()
+                    .id(newCart.getId())
+                    .userId(newCart.getUserId())
+                    .courseId(newCart.getCourseId())
+                    .instructorName(newCart.getInstructorName())
+                    .courseName(newCart.getCourseName())
+                    .price(newCart.getPrice()).build();
         }
-        return "Thêm khoá học vào giỏ hàng thành công";
     }
 
     public String removeCourseFromCart(String courseId) {
@@ -57,15 +71,19 @@ public class CartService {
         return "Xoá khoá học khỏi giỏ hàng thành công";
     }
 
-    public List<Cart> getCoursesInCart() {
+    public CartResponse getCoursesInCart() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();
 
         List<Cart> carts = cartRepository.findByUserId(userId);
-        if (carts == null) {
-            return new ArrayList<>();
-        }
-        return carts;
+        List<ACartResponse> cartResponses = carts.stream().map(cart -> ACartResponse.builder()
+                .id(cart.getId())
+                .courseId(cart.getCourseId())
+                .userId(cart.getUserId())
+                .instructorName(cart.getInstructorName())
+                .courseName(cart.getCourseName())
+                .price(cart.getPrice()).build()).toList();
+        return CartResponse.builder().cart(Objects.requireNonNullElseGet(cartResponses, ArrayList::new)).build();
     }
 
     public String changeToWishList(String courseId) {
@@ -77,6 +95,7 @@ public class CartService {
             WishList wish = WishList.builder()
                     .userId(userId)
                     .courseId(courseId)
+                    .instructorName(cart.get().getInstructorName())
                     .courseName(cart.get().getCourseName())
                     .price(cart.get().getPrice()).build();
             wishListRepository.save(wish);
@@ -85,5 +104,17 @@ public class CartService {
             throw new AppException(ErrorCode.COURSE_NOT_EXISTS);
         }
         return "Chuyển khoá học vào giỏ hàng thành công";
+    }
+
+    @Transactional
+    public void removeCourseOrderedFromCart(String userId, List<PaymentEvent.Course> courses) {
+        List<String> courseIds = courses.stream().map(PaymentEvent.Course::getCourseId).toList();
+        List<Cart> carts = cartRepository.findByUserIdAndCourseIdIn(userId, courseIds);
+
+        if (carts.size() < courses.size()) {
+            throw new AppException(ErrorCode.COURSE_NOT_EXISTS);
+        }
+
+        cartRepository.deleteAll(carts);
     }
 }

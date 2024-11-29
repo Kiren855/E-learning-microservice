@@ -1,17 +1,22 @@
 package com.sunny.microservices.payment.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sunny.microservices.basedomain.payment.dto.InitPaymentRequest;
 import com.sunny.microservices.basedomain.payment.dto.InitPaymentResponse;
 import com.sunny.microservices.payment.constant.Locale;
 import com.sunny.microservices.payment.constant.Symbol;
 import com.sunny.microservices.payment.constant.Currency;
 import com.sunny.microservices.payment.constant.VNPayParams;
+import com.sunny.microservices.payment.entity.PaymentHistory;
+import com.sunny.microservices.payment.repository.PaymentHistoryRepository;
 import com.sunny.microservices.payment.util.DateUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.apache.http.client.utils.URIBuilder;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -40,21 +45,30 @@ public class VNPayService implements PaymentService {
 
     private final CryptoService cryptoService;
 
+    private final PaymentHistoryRepository paymentHistoryRepository;
 
     public InitPaymentResponse init(InitPaymentRequest request) {
+
+        PaymentHistory paymentHistory = PaymentHistory.builder()
+                .userId(request.getUserId())
+                .orderId(request.getTxnRef())
+                .totalPrice(request.getAmount())
+                .courses(request.getCourses())
+                .status("PENDING").build();
+
+        paymentHistoryRepository.save(paymentHistory);
+
         var amount = request.getAmount() * DEFAULT_MULTIPLIER;
         var txnRef = request.getTxnRef();
         var returnUrl = buildReturnUrl(txnRef);
         var vnCalendar = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
         var createdDate = DateUtil.formatVnTime(vnCalendar);
         vnCalendar.add(Calendar.MINUTE, paymentTimeout);
-        var expiredDate = DateUtil.formatVnTime(vnCalendar);    // 4. expiredDate for secure
+        var expiredDate = DateUtil.formatVnTime(vnCalendar);
 
         var ipAddress = request.getIpAddress();
         var orderInfo = buildPaymentDetail(request);
         var requestId = request.getRequestId();
-
-        var courses = request.getCourses();
 
         Map<String, String> params = new HashMap<>();
 
@@ -117,7 +131,7 @@ public class VNPayService implements PaymentService {
     }
 
     private String buildReturnUrl(String txnRef) {
-        return String.format(returnUrlFormat, txnRef);
+            return String.format(returnUrlFormat, txnRef);
     }
 
     @SneakyThrows
