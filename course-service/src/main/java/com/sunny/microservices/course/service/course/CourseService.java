@@ -96,15 +96,15 @@ public class CourseService {
     public void deleteCourse(String courseId) {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
+        log.info("section: {}", course.getSections());
         if(course.getIsDraft() == Boolean.FALSE) {
             throw new AppException(ErrorCode.COURSE_CANNOT_DELETE);
         }
-        if(course.getSections().isEmpty()) {
+        if(course.getSections() == null || course.getSections().isEmpty()) {
             courseRepository.delete(course);
         }else {
             throw new AppException(ErrorCode.SECTION_NOT_EMPTY);
         }
-        courseRepository.delete(course);
     }
 
     //////////////////////////////////////////////////////////////////
@@ -170,8 +170,12 @@ public class CourseService {
         course.setIsDraft(Boolean.FALSE);
         String userId = course.getInstructorId();
         String courseName = course.getTitle();
-
         courseRepository.save(course);
+
+        PendingCourse pendingCourse = pendingCourseRepository.findByCourseId(courseId)
+                .orElseThrow(()-> new AppException(ErrorCode.COURSE_NOT_FOUND));
+
+        pendingCourseRepository.delete(pendingCourse);
 
         courseProcessingService.processApproveCourse(userId, courseName);
         return "Chấp thuận thành công khoá học";
@@ -183,6 +187,11 @@ public class CourseService {
 
         String userId = course.getInstructorId();
         String courseName = course.getTitle();
+
+        PendingCourse pendingCourse = pendingCourseRepository.findByCourseId(courseId)
+                .orElseThrow(()-> new AppException(ErrorCode.COURSE_NOT_FOUND));
+
+        pendingCourseRepository.delete(pendingCourse);
 
         courseProcessingService.processRejectCourse(userId, courseName, reason);
         return "Từ chối thành công khoá học";

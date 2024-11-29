@@ -11,7 +11,8 @@ public enum ErrorCode {
     UNAUTHENTICATED(1006, "Unauthenticated", HttpStatus.UNAUTHORIZED),
     UNAUTHORIZED(1007, "Bạn không có quyền", HttpStatus.FORBIDDEN),
     COURSE_EXISTS(4001, "Khoá học đã có trong danh sách ước", HttpStatus.BAD_REQUEST),
-    COURSE_NOT_EXISTS(4002, "Khoá học không tồn tại trong danh sách ước", HttpStatus.BAD_REQUEST);
+    COURSE_NOT_EXISTS(4002, "Khoá học không tồn tại trong danh sách ước", HttpStatus.BAD_REQUEST),
+    PAYMENT_NOT_FOUND(4003, "không tìm thấy lịch sử thanh toán này", HttpStatus.BAD_REQUEST);
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
         this.code = code;
         this.message = message;

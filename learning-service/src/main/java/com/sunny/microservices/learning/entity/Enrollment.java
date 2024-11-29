@@ -21,6 +21,7 @@ public class Enrollment {
     String id;
     String userId;
     String courseId;
+    String instructorName;
     String status;
     Progress progress;
     Date enrollmentDate;

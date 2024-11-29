@@ -6,6 +6,7 @@ import com.sunny.microservices.course.dto.ApiResponse;
 import com.sunny.microservices.course.dto.DTO.SubmitCourseDto;
 import com.sunny.microservices.course.dto.request.course.CourseCreateRequest;
 import com.sunny.microservices.course.dto.request.course.CourseRequest;
+import com.sunny.microservices.course.dto.response.IdResponse;
 import com.sunny.microservices.course.dto.response.course.CoursePreviewResponse;
 import com.sunny.microservices.course.dto.response.course.CourseResponse;
 import com.sunny.microservices.course.service.course.CourseCreateService;
@@ -41,8 +42,8 @@ public class CourseController {
     }
     @PostMapping()
     @PreAuthorize("hasRole('INSTRUCTOR')")
-    public ResponseEntity<ApiResponse<String>> createCourse(@RequestBody CourseCreateRequest request) {
-        ApiResponse<String> response = ApiResponse.<String>builder()
+    public ResponseEntity<ApiResponse<IdResponse>> createCourse(@RequestBody CourseCreateRequest request) {
+        ApiResponse<IdResponse> response = ApiResponse.<IdResponse>builder()
                 .message("tạo khoá học thành côngb ")
                 .result(courseCreateService.createCourse(request)).build();
 

@@ -1,6 +1,9 @@
 package com.sunny.microservices.order.service;
 
 import com.sunny.microservices.order.dto.request.WishCourseRequest;
+import com.sunny.microservices.order.dto.response.ACartResponse;
+import com.sunny.microservices.order.dto.response.AWishResponse;
+import com.sunny.microservices.order.dto.response.WishListResponse;
 import com.sunny.microservices.order.entity.Cart;
 import com.sunny.microservices.order.entity.WishList;
 import com.sunny.microservices.order.exception.AppException;
@@ -17,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -27,7 +31,7 @@ public class WishListService {
     WishListRepository wishListRepository;
     CartRepository cartRepository;
 
-    public String addCourseToWishList(WishCourseRequest request) {
+    public AWishResponse addCourseToWishList(WishCourseRequest request) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();
 
@@ -41,8 +45,14 @@ public class WishListService {
                     .courseName(request.getCourseName())
                     .price(request.getPrice()).build();
             wishListRepository.save(newWish);
+
+            return AWishResponse.builder()
+                    .id(newWish.getId())
+                    .userId(newWish.getUserId())
+                    .courseId(newWish.getCourseId())
+                    .instructorName(newWish.getInstructorName())
+                    .price(newWish.getPrice()).build();
         }
-        return "Thêm khoá học vào danh sách ước thành công";
     }
 
     public String removeCourseFromWishList(String courseId) {
@@ -58,15 +68,20 @@ public class WishListService {
         return "Xoá khoá học khỏi danh sách ước thành công";
     }
 
-    public List<WishList> getCoursesInWishList() {
+    public WishListResponse getCoursesInWishList() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();
 
         List<WishList> wishs = wishListRepository.findByUserId(userId);
-        if (wishs == null) {
-            return new ArrayList<>();
-        }
-        return wishs;
+        List<AWishResponse> wishResponses = wishs.stream().map(cart -> AWishResponse.builder()
+                .id(cart.getId())
+                .courseId(cart.getCourseId())
+                .userId(cart.getUserId())
+                .instructorName(cart.getInstructorName())
+                .courseName(cart.getCourseName())
+                .price(cart.getPrice()).build()).toList();
+
+        return WishListResponse.builder().wishList(Objects.requireNonNullElseGet(wishResponses, ArrayList::new)).build();
     }
 
     public String changeToCart(String courseId) {
@@ -78,6 +93,7 @@ public class WishListService {
             Cart cart = Cart.builder()
                     .userId(userId)
                     .courseId(courseId)
+                    .instructorName(wish.get().getInstructorName())
                     .courseName(wish.get().getCourseName())
                     .price(wish.get().getPrice()).build();
             cartRepository.save(cart);

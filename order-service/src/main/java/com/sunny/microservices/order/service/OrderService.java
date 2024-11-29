@@ -4,6 +4,8 @@ import com.sunny.microservices.basedomain.payment.dto.InitPaymentRequest;
 import com.sunny.microservices.basedomain.payment.dto.InitPaymentResponse;
 import com.sunny.microservices.order.client.PaymentClient;
 import com.sunny.microservices.order.dto.request.OrderRequest;
+import com.sunny.microservices.order.dto.response.ACartResponse;
+import com.sunny.microservices.order.dto.response.CartResponse;
 import com.sunny.microservices.order.dto.response.OrderDto;
 import com.sunny.microservices.order.dto.response.OrderResponse;
 import com.sunny.microservices.order.entity.Cart;
@@ -16,6 +18,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
@@ -34,21 +37,23 @@ public class OrderService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();
 
-        List<Cart> carts = cartService.getCoursesInCart();
-
-        int totalPrice = carts.stream().mapToInt(Cart::getPrice).sum();
+        CartResponse cartResponse = cartService.getCoursesInCart();
+        List<ACartResponse> carts = cartResponse.getCart();
 
         List<InitPaymentRequest.Course> courses = carts.stream().map(cart -> InitPaymentRequest.Course.builder()
+                .courseId(cart.getCourseId())
+                .instructorName(cart.getInstructorName())
                 .courseName(cart.getCourseName())
                 .price(cart.getPrice()).build()).toList();
 
+        Integer totalPrice = carts.stream().mapToInt(ACartResponse::getPrice).sum();
 
-        String orderId = UUID.randomUUID().toString().substring(0, 10);
-        String requestId = UUID.randomUUID().toString().substring(0, 12);
+        String orderId = UUID.randomUUID().toString();
+        String requestId = UUID.randomUUID().toString();
 
         InitPaymentRequest initPaymentRequest = InitPaymentRequest.builder()
-                .userId(userId)
                 .amount(totalPrice)
+                .userId(userId)
                 .txnRef(orderId)
                 .courses(courses)
                 .ipAddress(request.getIpAddress())
@@ -59,7 +64,6 @@ public class OrderService {
 
         OrderDto orderDto = OrderDto.builder()
                 .userId(userId)
-                .price(totalPrice)
                 .build();
 
         return OrderResponse.builder()

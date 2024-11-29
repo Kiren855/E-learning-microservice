@@ -21,7 +21,7 @@ public class InitPaymentRequest {
 
     private String txnRef;
 
-    private long amount;
+    private Integer amount;
 
     private List<Course> courses;
 
@@ -31,7 +31,9 @@ public class InitPaymentRequest {
     @Setter
     @Builder
     public static class Course {
+        String courseId;
         String courseName;
+        String instructorName;
         Integer price;
     }
 }

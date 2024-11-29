@@ -7,11 +7,13 @@ import com.sunny.microservices.course.dto.DTO.LessonPreview;
 import com.sunny.microservices.course.dto.DTO.SectionDetail;
 import com.sunny.microservices.course.dto.DTO.SectionPreview;
 import com.sunny.microservices.course.dto.request.SectionRequest;
+import com.sunny.microservices.course.dto.response.IdResponse;
 import com.sunny.microservices.course.entity.Course;
 import com.sunny.microservices.course.entity.Lesson;
 import com.sunny.microservices.course.entity.Section;
 import com.sunny.microservices.course.exception.AppException;
 import com.sunny.microservices.course.exception.ErrorCode;
+import com.sunny.microservices.course.repository.CourseRepository;
 import com.sunny.microservices.course.repository.SectionRepository;
 import com.sunny.microservices.course.service.lesson.LessonService;
 import lombok.AccessLevel;
@@ -40,21 +42,22 @@ public class SectionService {
         SectionRepository sectionRepository;
         MongoTemplate mongoTemplate;
         LessonService lessonService;
-        public  String createSection(String courseId, SectionRequest request) {
+        CourseRepository courseRepository;
+        public IdResponse createSection(String courseId, SectionRequest request) {
             try{
                 var section = Section.builder()
                         .name(request.getName())
                         .partNumber(request.getPartNumber())
                         .duration(Duration.ofSeconds(0).getSeconds() * 1.0)
                         .totalLesson(0).build();
-                section.setLessons(List.of());
+                section.setLessons(new ArrayList<>());
                 sectionRepository.save(section);
 
                 mongoTemplate.updateFirst(new Query(Criteria.where("_id").is(courseId)),
                         new Update().addToSet("sections", section.getId()),
                         Course.class);
 
-                return "tạo phần học thành công";
+                return IdResponse.builder().Id(section.getId()).build();
             }catch (Exception e) {
                 throw new AppException(ErrorCode.CREATE_FAILED);
             }
@@ -64,8 +67,11 @@ public class SectionService {
             var section = sectionRepository.findById(sectionId)
                     .orElseThrow(() -> new AppException(ErrorCode.SECTION_NOT_FOUND));
 
-            section.setName(request.getName());
-            section.setPartNumber(request.getPartNumber());
+            if(request.getName() != null)
+                section.setName(request.getName());
+
+            if(request.getPartNumber() != null)
+                section.setPartNumber(request.getPartNumber());
 
             sectionRepository.save(section);
 
@@ -74,15 +80,16 @@ public class SectionService {
 
         public String deleteSection(String courseId, String sectionId) {
             try {
+                var course = courseRepository.findById(courseId)
+                        .orElseThrow(()-> new AppException(ErrorCode.COURSE_NOT_FOUND));
+
                 var section = sectionRepository.findById(sectionId)
                         .orElseThrow(() -> new AppException(ErrorCode.SECTION_NOT_FOUND));
 
-                if (section.getLessons().isEmpty()) {
-                    mongoTemplate.updateFirst(
-                            new Query(Criteria.where("_id").is(courseId)),
-                            new Update().pull("sections", new ObjectId(sectionId)),
-                            Course.class
-                    );
+                if (section.getLessons() == null || section.getLessons().isEmpty()) {
+                    course.getSections().removeIf(s -> s.equals(sectionId));
+
+                    courseRepository.save(course);
                     sectionRepository.delete(section);
                     return "xoá phần học thành công";
                 } else {

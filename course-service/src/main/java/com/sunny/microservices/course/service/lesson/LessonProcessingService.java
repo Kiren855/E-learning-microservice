@@ -1,6 +1,6 @@
 package com.sunny.microservices.course.service.lesson;
 
-import com.sunny.microservices.basedomain.course.dto.event.LessonCreatedEvent;
+import com.sunny.microservices.basedomain.event.LessonCreatedEvent;
 import com.sunny.microservices.course.client.AzureFileStorageClient;
 import com.sunny.microservices.course.client.UserClient;
 import com.sunny.microservices.course.dto.response.ProfileResponse;
@@ -21,13 +21,10 @@ import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
-import java.util.ArrayList;
-import java.util.Objects;
 
 @Service
 @Slf4j
@@ -53,21 +50,11 @@ public class LessonProcessingService {
     @NonFinal
     String thumbnailContainer;
     @Async("threadPoolTaskExecutor")
-    public void processCreateVideoLesson(String userId, String sectionId,
-                                         String lessonName,
-                                         Integer partNumber, Double duration,
+    public void processCreateVideoLesson(String userId, Section section, Lesson lesson,
+                                         Double duration,
                                          String videoName, byte[] videoFile,
                                          String thumbnailName, byte[] thumbnailFile) {
         ProfileResponse user = userClient.getProfile(userId);
-        Section section = sectionRepository.findById(sectionId).orElseThrow(
-                () -> new AppException(ErrorCode.SECTION_NOT_FOUND)
-        );
-
-        Lesson lesson = Lesson.builder()
-                .name(lessonName)
-                .type("VIDEO")
-                .partNumber(partNumber)
-                .comments(new ArrayList<>()).build();
 
         String pathVideo = azureFileStorageClient.uploadFile(videoContainer,
                 videoName,
@@ -92,6 +79,7 @@ public class LessonProcessingService {
         Double newDuraton = section.getDuration() + duration;
 
         section.getLessons().add(lesson.getId());
+        section.setTotalLesson(section.getTotalLesson() + 1);
         section.setDuration(newDuraton);
 
         sectionRepository.save(section);
@@ -126,6 +114,7 @@ public class LessonProcessingService {
         lesson.setType_id(doc.getId());
         lessonRepository.save(lesson);
         section.getLessons().add(lesson.getId());
+        section.setTotalLesson(section.getTotalLesson() + 1);
         sectionRepository.save(section);
 
         log.info("success create doc lesson");

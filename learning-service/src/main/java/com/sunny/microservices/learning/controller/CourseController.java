@@ -3,6 +3,7 @@ package com.sunny.microservices.learning.controller;
 import com.sunny.microservices.basedomain.course.dto.response.CourseLearningResponse;
 import com.sunny.microservices.learning.dto.ApiResponse;
 import com.sunny.microservices.learning.service.EnrollmentService;
+import com.sunny.microservices.learning.service.LearningService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -22,11 +23,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class CourseController {
 
     EnrollmentService enrollmentService;
+    LearningService learningService;
     @GetMapping("/{courseId}")
-    public ResponseEntity<?> getCourse(@PathVariable String courseId){
+    public ResponseEntity<ApiResponse<CourseLearningResponse>> getCourse(@PathVariable String courseId){
         ApiResponse<CourseLearningResponse> response = ApiResponse.<CourseLearningResponse>builder()
                 .message("lấy thông tin khoá học thành công")
-                .result(enrollmentService.getCourse(courseId)).build();
+                .result(learningService.getDetailCourseForLearning(courseId)).build();
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
 

@@ -2,6 +2,7 @@ package com.sunny.microservices.course.service.course;
 
 import com.sunny.microservices.course.client.UserClient;
 import com.sunny.microservices.course.dto.request.course.CourseCreateRequest;
+import com.sunny.microservices.course.dto.response.IdResponse;
 import com.sunny.microservices.course.entity.Course;
 import com.sunny.microservices.course.repository.CourseRepository;
 import lombok.AccessLevel;
@@ -19,7 +20,7 @@ import org.springframework.stereotype.Service;
 public class CourseCreateService {
     CourseRepository courseRepository;
     CourseProcessingService courseProcessingService;
-    public String createCourse(CourseCreateRequest request) {
+    public IdResponse createCourse(CourseCreateRequest request) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();
 
@@ -33,6 +34,6 @@ public class CourseCreateService {
 
         courseProcessingService.processUpdateInstructorInCourse(userId, course);
 
-        return course.getId();
+        return IdResponse.builder().Id(course.getId()).build();
     }
 }

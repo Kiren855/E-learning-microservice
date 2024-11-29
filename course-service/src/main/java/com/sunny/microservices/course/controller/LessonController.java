@@ -2,6 +2,7 @@ package com.sunny.microservices.course.controller;
 
 import com.sunny.microservices.course.dto.ApiResponse;
 import com.sunny.microservices.course.dto.request.lesson.*;
+import com.sunny.microservices.course.dto.response.IdResponse;
 import com.sunny.microservices.course.dto.response.lesson.ArticleResponse;
 import com.sunny.microservices.course.dto.response.lesson.ExamResponse;
 import com.sunny.microservices.course.dto.response.lesson.VideoResponse;
@@ -37,10 +38,11 @@ public class LessonController {
     }
     @PostMapping("/video/{sectionId}")
     @PreAuthorize("hasRole('INSTRUCTOR')")
-    public ResponseEntity<ApiResponse<String>> createVideoLesson(@PathVariable String sectionId,
+    public ResponseEntity<ApiResponse<IdResponse>> createVideoLesson(@PathVariable String sectionId,
                                                @ModelAttribute VideoLessonRequest request) throws IOException {
-        ApiResponse<String> response = ApiResponse.<String>builder()
-                .message(lessonService.createVideoLesson(sectionId, request))
+        ApiResponse<IdResponse> response = ApiResponse.<IdResponse>builder()
+                .message("tạo bài học thành công, video đang được đăng tải")
+                .result(lessonService.createVideoLesson(sectionId, request))
                .build();
 
       return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -70,9 +72,10 @@ public class LessonController {
 
     @PostMapping("/exam/{sectionId}")
     @PreAuthorize("hasRole('INSTRUCTOR')")
-    public ResponseEntity<ApiResponse<String>> createExamLesson(@PathVariable String sectionId, @RequestBody ExamRequest request) {
-        ApiResponse<String> response = ApiResponse.<String>builder()
-                .message(lessonService.createExam(sectionId, request)).build();
+    public ResponseEntity<ApiResponse<IdResponse>> createExamLesson(@PathVariable String sectionId, @RequestBody ExamRequest request) {
+        ApiResponse<IdResponse> response = ApiResponse.<IdResponse>builder()
+                .message("tạo trắc nghiệm thành công")
+                .result(lessonService.createExam(sectionId, request)).build();
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -97,18 +100,20 @@ public class LessonController {
     }
     @PostMapping("/article/{sectionId}")
     @PreAuthorize("hasRole('INSTRUCTOR')")
-    public ResponseEntity<ApiResponse<String>> createArticle(@PathVariable String sectionId, @RequestBody ArticleLessonRequest request) {
-        ApiResponse<String> response = ApiResponse.<String>builder()
-                .message(lessonService.createArticle(sectionId, request)).build();
+    public ResponseEntity<ApiResponse<IdResponse>> createArticle(@PathVariable String sectionId, @RequestBody ArticleLessonRequest request) {
+        ApiResponse<IdResponse> response = ApiResponse.<IdResponse>builder()
+                .message("tạo bài viết thành công")
+                .result(lessonService.createArticle(sectionId, request))
+                .build();
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PutMapping("/article/{lessonId}")
     @PreAuthorize("hasRole('INSTRUCTOR')")
-    public ResponseEntity<ApiResponse<String>> updateArticle(@PathVariable String lessonId, @RequestBody String content) {
+    public ResponseEntity<ApiResponse<String>> updateArticle(@PathVariable String lessonId, @RequestBody ArticleLessonRequest request) {
             ApiResponse<String> response = ApiResponse.<String>builder()
-                    .message(lessonService.updateArticle(lessonId, content)).build();
+                    .message(lessonService.updateArticle(lessonId, request)).build();
 
             return ResponseEntity.status(HttpStatus.OK).body(response);
     }

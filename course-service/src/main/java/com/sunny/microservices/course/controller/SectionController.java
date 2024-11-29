@@ -3,6 +3,7 @@ package com.sunny.microservices.course.controller;
 
 import com.sunny.microservices.course.dto.ApiResponse;
 import com.sunny.microservices.course.dto.request.SectionRequest;
+import com.sunny.microservices.course.dto.response.IdResponse;
 import com.sunny.microservices.course.service.SectionService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -22,9 +23,10 @@ public class SectionController {
     SectionService sectionService;
     @PostMapping("/{courseId}")
     @PreAuthorize("hasRole('INSTRUCTOR')")
-    public ResponseEntity<ApiResponse<String>> createSection(@PathVariable String courseId, @RequestBody SectionRequest request) {
-        ApiResponse<String> response = ApiResponse.<String>builder()
-                .message(sectionService.createSection(courseId, request)).build();
+    public ResponseEntity<ApiResponse<IdResponse>> createSection(@PathVariable String courseId, @RequestBody SectionRequest request) {
+        ApiResponse<IdResponse> response = ApiResponse.<IdResponse>builder()
+                .message("tạo phần học thành công")
+                .result(sectionService.createSection(courseId, request)).build();
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }

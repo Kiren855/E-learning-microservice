@@ -10,4 +10,6 @@ public interface CartRepository extends MongoRepository<Cart, String> {
     List<Cart> findByUserId(String userId);
 
     Optional<Cart> findByUserIdAndCourseId(String userId, String courseId);
+
+    List<Cart> findByUserIdAndCourseIdIn(String userId, List<String> courseIds);
 }

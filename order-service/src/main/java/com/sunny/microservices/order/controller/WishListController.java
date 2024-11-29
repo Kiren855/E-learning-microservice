@@ -3,6 +3,7 @@ package com.sunny.microservices.order.controller;
 
 import com.sunny.microservices.order.dto.ApiResponse;
 import com.sunny.microservices.order.dto.request.WishCourseRequest;
+import com.sunny.microservices.order.dto.response.WishListResponse;
 import com.sunny.microservices.order.entity.WishList;
 import com.sunny.microservices.order.service.WishListService;
 import lombok.AccessLevel;
@@ -24,8 +25,8 @@ public class WishListController {
     WishListService wishListService;
 
     @GetMapping()
-    public ResponseEntity<ApiResponse<List<WishList>>> getCourseInWishList(){
-            ApiResponse<List<WishList>> response = ApiResponse.<List<WishList>>builder()
+    public ResponseEntity<ApiResponse<WishListResponse>> getCourseInWishList(){
+            ApiResponse<WishListResponse> response = ApiResponse.<WishListResponse>builder()
                     .message("lấy danh sách ước thành công")
                     .result(wishListService.getCoursesInWishList()).build();
 

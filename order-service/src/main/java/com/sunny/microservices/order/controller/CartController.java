@@ -2,6 +2,8 @@ package com.sunny.microservices.order.controller;
 
 import com.sunny.microservices.order.dto.ApiResponse;
 import com.sunny.microservices.order.dto.request.CartCourseRequest;
+import com.sunny.microservices.order.dto.response.ACartResponse;
+import com.sunny.microservices.order.dto.response.CartResponse;
 import com.sunny.microservices.order.entity.Cart;
 import com.sunny.microservices.order.service.CartService;
 import lombok.AccessLevel;
@@ -23,8 +25,8 @@ public class CartController {
     CartService cartService;
 
     @GetMapping()
-    public ResponseEntity<ApiResponse<List<Cart>>> getCourseInCart(){
-        ApiResponse<List<Cart>> response = ApiResponse.<List<Cart>>builder()
+    public ResponseEntity<ApiResponse<CartResponse>> getCourseInCart(){
+        ApiResponse<CartResponse> response = ApiResponse.<CartResponse>builder()
                 .message("lấy danh sách ước thành công")
                 .result(cartService.getCoursesInCart()).build();
 
@@ -32,9 +34,10 @@ public class CartController {
     }
 
     @PostMapping()
-    public ResponseEntity<ApiResponse<String>> addCourseToCart(@RequestBody CartCourseRequest request) {
-        ApiResponse<String> response = ApiResponse.<String>builder()
-                .message(cartService.addCourseToCart(request)).build();
+    public ResponseEntity<ApiResponse<ACartResponse>> addCourseToCart(@RequestBody CartCourseRequest request) {
+        ApiResponse<ACartResponse> response = ApiResponse.<ACartResponse>builder()
+                .message("thêm vào giỏ hàng thành công")
+                .result(cartService.addCourseToCart(request)).build();
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
