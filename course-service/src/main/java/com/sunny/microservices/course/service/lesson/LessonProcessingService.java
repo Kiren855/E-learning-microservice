@@ -90,6 +90,43 @@ public class LessonProcessingService {
         lessonProducer.sendMessage(event);
 
     }
+
+    @Async("threadPoolTaskExecutor")
+    public void processUpdateVideo(Section section, Video video, String videoName, byte[] videoFile, Double duration) {
+        String videoFileUrl = extractFileName(video.getVideoUrl());
+        azureFileStorageClient.deleteFile(videoContainer, videoFileUrl);
+
+        String pathVideo = azureFileStorageClient.uploadFile(videoContainer,
+                videoName,
+                new ByteArrayInputStream(videoFile),
+                videoFile.length);
+
+        Double oldTotalDuration = section.getDuration();
+        Double currTotalDuration = oldTotalDuration - video.getDuration();
+        Double newTotalDuration = currTotalDuration + duration;
+
+        section.setDuration(newTotalDuration);
+        sectionRepository.save(section);
+
+        video.setVideoUrl(pathVideo);
+        video.setDuration(duration);
+        videoRepository.save(video);
+    }
+
+    @Async("threadPoolTaskExecutor")
+    public void processUpdateThumbnail(Video video, String thumbnailName, byte[] thumbnailFile) {
+        String thumbnailUrl = extractFileName(video.getThumbnailUrl());
+        azureFileStorageClient.deleteFile(thumbnailContainer, thumbnailUrl);
+
+        String pathThumbnail = azureFileStorageClient.uploadFile(thumbnailContainer,
+                thumbnailName,
+                new ByteArrayInputStream(thumbnailFile),
+                thumbnailFile.length);
+
+        video.setThumbnailUrl(pathThumbnail);
+        videoRepository.save(video);
+    }
+
     @Async("threadPoolTaskExecutor")
     public void processCreateDocLesson(String userId, String sectionId,
                                        String lessonName, Integer partNumber,
@@ -123,4 +160,7 @@ public class LessonProcessingService {
         lessonProducer.sendMessage(event);
     }
 
+    private String extractFileName(String blobUrl) {
+        return blobUrl.substring(blobUrl.lastIndexOf("/") + 1);
+    }
 }

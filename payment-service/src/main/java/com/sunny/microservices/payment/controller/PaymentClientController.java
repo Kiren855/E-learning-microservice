@@ -1,7 +1,7 @@
 package com.sunny.microservices.payment.controller;
 
 import com.sunny.microservices.basedomain.payment.dto.InitPaymentRequest;
-import com.sunny.microservices.basedomain.payment.dto.InitPaymentResponse;
+import com.sunny.microservices.basedomain.event.InitPaymentResponse;
 import com.sunny.microservices.payment.service.PaymentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

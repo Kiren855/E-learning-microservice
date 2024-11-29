@@ -1,6 +1,7 @@
 package com.sunny.microservices.course.controller.course;
 
 import com.sunny.microservices.basedomain.course.dto.response.CourseLearningResponse;
+import com.sunny.microservices.course.service.course.CourseClientService;
 import com.sunny.microservices.course.service.course.CourseService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -17,11 +18,11 @@ import org.springframework.web.bind.annotation.RestController;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
 public class CourseClientController {
-    CourseService courseService;
+    CourseClientService courseClientService;
 
     @GetMapping("/detail/{courseId}")
     public CourseLearningResponse getCourse(@PathVariable String courseId) {
-        return courseService.getCourseDetail(courseId);
+        return courseClientService.getCourseDetail(courseId);
     }
 
 //    @GetMapping("/learn/{lessonId}")

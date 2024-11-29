@@ -39,6 +39,7 @@ public class CourseService {
     ReviewService reviewService;
     CourseProcessingService courseProcessingService;
     PendingCourseRepository pendingCourseRepository;
+
     public CoursePreviewResponse getCoursePreview(String courseId) {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
@@ -107,36 +108,6 @@ public class CourseService {
         }
     }
 
-    //////////////////////////////////////////////////////////////////
-    /////// CẦN XEM XÉT LẠI /////////////////////////////////////////
-    public CourseLearningResponse getCourseDetail(String courseId) {
-        Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
-
-        List<SectionLearning> sections = sectionService.findSectionLearningByIds(course.getSections());
-        List<ReviewDetail> reviews = reviewService.findReviewsById(course.getReviews());
-        Double totalDuration = sections.stream().mapToDouble(SectionLearning::getDuration).sum();
-        String mainTopic = topicService.getMainTopicById(course.getMainTopic());
-        String subTopic = topicService.getSubTopicById(course.getSubTopic());
-
-        return CourseLearningResponse.builder()
-                .id(course.getId())
-                .title(course.getTitle())
-                .subTitle(course.getSubTitle())
-                .description(course.getDescription())
-                .mainTopic(mainTopic)
-                .subTopic(subTopic)
-                .sections(sections)
-                .instructorId(course.getInstructorId())
-                .instructorName(course.getInstructorName())
-                .language(course.getLanguage())
-                .rating(course.getRating())
-                .reviews(reviews)
-                .targetAudiences(course.getTargetAudiences())
-                .requirements(course.getRequirements())
-                .duration(totalDuration).build();
-    }
-
     public List<CourseResponse> getCourses() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();
@@ -158,9 +129,11 @@ public class CourseService {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();
-
+        var pendingCourse = pendingCourseRepository.findByCourseId(courseId);
+        if(pendingCourse.isPresent()) {
+           throw new AppException(ErrorCode.COURSE_IS_PENDING);
+        }
         courseProcessingService.processSubmitCourse(courseId, userId, course.getTitle());
-
         return "Thành công, chờ admin xét duyệt";
     }
     public String approveCourse(String courseId) {

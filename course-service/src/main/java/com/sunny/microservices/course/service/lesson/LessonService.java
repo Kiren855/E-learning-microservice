@@ -1,15 +1,9 @@
 package com.sunny.microservices.course.service.lesson;
 
 
-import com.sunny.microservices.basedomain.course.dto.DTO.LessonLearning;
 import com.sunny.microservices.course.client.AzureFileStorageClient;
-import com.sunny.microservices.course.dto.DTO.LessonDetail;
-import com.sunny.microservices.course.dto.DTO.LessonPreview;
 import com.sunny.microservices.course.dto.request.lesson.*;
 import com.sunny.microservices.course.dto.response.IdResponse;
-import com.sunny.microservices.course.dto.response.lesson.ArticleResponse;
-import com.sunny.microservices.course.dto.response.lesson.ExamResponse;
-import com.sunny.microservices.course.dto.response.lesson.VideoResponse;
 import com.sunny.microservices.course.entity.*;
 import com.sunny.microservices.course.exception.AppException;
 import com.sunny.microservices.course.exception.ErrorCode;
@@ -20,6 +14,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -28,10 +23,7 @@ import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -59,6 +51,7 @@ public class LessonService {
     @NonFinal
     String thumbnailContainer;
 
+    @CacheEvict(value = {"course-client"}, allEntries = true)
     public String updateLesson(String lessonId, LessonRequest request) {
         Lesson lesson = lessonRepository.findById(lessonId)
                 .orElseThrow(() -> new AppException(ErrorCode.LESSON_NOT_FOUND));
@@ -73,6 +66,7 @@ public class LessonService {
 
         return "Cập nhật bài giảng thành công";
     }
+    @CacheEvict(value = {"course-client"}, allEntries = true)
     public String deleteLesson(String sectionId,String lessonId) {
         Section section = sectionRepository.findById(sectionId)
                 .orElseThrow(() -> new AppException(ErrorCode.SECTION_NOT_FOUND));
@@ -128,6 +122,7 @@ public class LessonService {
 
         return "xoá bài học thành công";
     }
+    @CacheEvict(value = {"course-client"}, allEntries = true)
     public IdResponse createVideoLesson(String sectionId, VideoLessonRequest request) {
        try {
            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -163,6 +158,46 @@ public class LessonService {
        }
     }
 
+    public String updateVideoLesson(String sectionId, String lessonId, VideoLessonRequest request) {
+        try {
+            Section section = sectionRepository.findById(sectionId)
+                    .orElseThrow(()-> new AppException(ErrorCode.SECTION_NOT_FOUND));
+            Lesson lesson = lessonRepository.findById(lessonId)
+                    .orElseThrow(()-> new AppException(ErrorCode.LESSON_NOT_FOUND));
+
+            if(request.getName() != null) {
+                lesson.setName(request.getName());
+            }
+            if (request.getPartNumber() != null)
+                lesson.setPartNumber(request.getPartNumber());
+
+            lessonRepository.save(lesson);
+            //////////////////////////////////////////////////////////
+            if(Objects.equals(lesson.getType(), "VIDEO")) {
+                String videoId = lesson.getType_id();
+                Video video = videoRepository.findById(videoId)
+                        .orElseThrow(() -> new AppException(ErrorCode.VIDEO_NOT_FOUND));
+
+                if(request.getVideoFile() != null ){
+                    Double duration = request.getDuration();
+                    MultipartFile videoFile = request.getVideoFile();
+                    String videoName = videoFile.getOriginalFilename();
+                    lessonProcessingService.processUpdateVideo(section, video, videoName,
+                            IOUtils.toByteArray(videoFile.getInputStream()), duration);
+                }
+
+                if(request.getThumbnailFile() != null) {
+                    MultipartFile thumbnailFile = request.getThumbnailFile();
+                    String thumbnailName = thumbnailFile.getOriginalFilename();
+                    lessonProcessingService.processUpdateThumbnail(video, thumbnailName,  IOUtils.toByteArray(thumbnailFile.getInputStream()));
+                }
+            }
+            return "cập nhật video thành công";
+        }catch (IOException e) {
+            throw new AppException(ErrorCode.FILE_INVALID);
+        }
+    }
+
     public String createDocLesson(String sectionId, DocLessonRequest request) {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -183,6 +218,7 @@ public class LessonService {
         }
     }
 
+    @CacheEvict(value = {"course-client"}, allEntries = true)
     public IdResponse createExam(String sectionId, ExamRequest request) {
         Section section = sectionRepository.findById(sectionId).orElseThrow(
                 () -> new AppException(ErrorCode.SECTION_NOT_FOUND)
@@ -219,107 +255,37 @@ public class LessonService {
         Lesson lesson = lessonRepository.findById(lessonId)
                 .orElseThrow(()-> new AppException(ErrorCode.LESSON_NOT_FOUND));
 
+        if(request.getName() != null)
+            lesson.setName(request.getName());
+        if(request.getPartNumber() != null)
+            lesson.setPartNumber(request.getPartNumber());
+        lessonRepository.save(lesson);
+
         if(Objects.equals(lesson.getType(), "EXAM")) {
                 String examId = lesson.getType_id();
 
                 Exam exam = examRepository.findById(examId)
                         .orElseThrow(()-> new AppException(ErrorCode.DOC_NOT_FOUND));
 
-                exam.setContents(examService.mapQuestionRequestToEntity(request.getContents()));
+                if(request.getTitle() != null)
+                    exam.setTitle(request.getTitle());
+
+                if(request.getSubTitle() != null)
+                    exam.setSubTitle(request.getSubTitle());
+
+                if(request.getContents() != null)
+                    exam.setContents(examService.mapQuestionRequestToEntity(request.getContents()));
                 examRepository.save(exam);
         }
         return "Cập nhật bài kiểm tra thành công";
     }
 
-    public List<Lesson> findLessonsByIds(List<String> lessonIds) {
-        return lessonRepository.findAllById(lessonIds);
-    }
-
-    public List<LessonPreview> mapToLessonPreviews(List<Lesson> lessons) {
-        return lessons.stream()
-                .sorted(Comparator.comparingInt(Lesson::getPartNumber))
-                .map(lesson -> {
-                    LessonPreview.LessonPreviewBuilder builder = LessonPreview.builder()
-                            .id(lesson.getId())
-                            .name(lesson.getName())
-                            .type(lesson.getType())
-                            .type_id(lesson.getType_id());
-
-                    if ("VIDEO".equals(lesson.getType())) {
-                        videoRepository.findById(lesson.getType_id()).ifPresent(video -> builder.duration(video.getDuration()));
-                    }
-                    return builder.build();
-                })
-                .collect(Collectors.toList());
-    }
-
-    public List<LessonLearning> mapToLessonLearnings(List<Lesson> lessons) {
-        return lessons.stream()
-                .sorted(Comparator.comparingInt(Lesson::getPartNumber))
-                .map(lesson -> {
-                    LessonLearning.LessonLearningBuilder builder = LessonLearning.builder()
-                            .id(lesson.getId())
-                            .name(lesson.getName())
-                            .type(lesson.getType())
-                            .type_id(lesson.getType_id())
-                            .partNumber(lesson.getPartNumber());
-
-                    if ("VIDEO".equals(lesson.getType())) {
-                        videoRepository.findById(lesson.getType_id()).ifPresent(video -> builder.duration(video.getDuration()));
-                    }
-                    return builder.build();
-                })
-                .collect(Collectors.toList());
-    }
-
-    public List<LessonDetail> mapToLessonDetails(List<Lesson> lessons) {
-        return lessons.stream()
-                .sorted(Comparator.comparingInt(Lesson::getPartNumber))
-                .map(lesson -> {
-                    LessonDetail.LessonDetailBuilder builder = LessonDetail.builder()
-                            .id(lesson.getId())
-                            .name(lesson.getName())
-                            .type(lesson.getType())
-                            .type_id(lesson.getType_id())
-                            .partNumber(lesson.getPartNumber())
-                            ;
-                    if ("VIDEO".equals(lesson.getType())) {
-                        videoRepository.findById(lesson.getType_id()).ifPresent(video -> {
-                            VideoResponse videoResponse = VideoResponse.builder()
-                                    .id(video.getId())
-                                    .duration(video.getDuration())
-                                    .videoUrl(video.getVideoUrl())
-                                    .thumbnailUrl(video.getThumbnailUrl()).build();
-                            builder.video(videoResponse);
-                        });
-                    }
-                    else if ("EXAM".equals(lesson.getType())) {
-                        examRepository.findById(lesson.getType_id()).ifPresent(exam -> {
-                            ExamResponse examResponse = ExamResponse.builder()
-                                    .id(exam.getId())
-                                    .title(exam.getTitle())
-                                    .subTitle(exam.getSubTitle())
-                                    .contents(examService.mapQuestionEntityToResponse(exam.getContents())).build();
-                            builder.exam(examResponse);
-                        });
-                    } else if ("ARTICLE".equals(lesson.getType())) {
-                        articleRepository.findById(lesson.getType_id()).ifPresent(article -> {
-                            ArticleResponse articleResponse = ArticleResponse.builder()
-                                    .id(article.getId())
-                                    .content(article.getContent()).build();
-                            builder.article(articleResponse);
-                        });
-                    }
-
-                    return builder.build();
-                })
-                .collect(Collectors.toList());
-    }
 
     private String extractFileName(String blobUrl) {
         return blobUrl.substring(blobUrl.lastIndexOf("/") + 1);
     }
 
+    @CacheEvict(value = {"course-client"}, allEntries = true)
     public IdResponse createArticle(String sectionId, ArticleLessonRequest request) {
         Section section = sectionRepository.findById(sectionId).orElseThrow(
                 () -> new AppException(ErrorCode.SECTION_NOT_FOUND)
@@ -351,6 +317,12 @@ public class LessonService {
     public String updateArticle(String lessonId, ArticleLessonRequest request) {
             Lesson lesson = lessonRepository.findById(lessonId)
                     .orElseThrow(()-> new AppException(ErrorCode.LESSON_NOT_FOUND));
+
+            if(request.getName() != null)
+                lesson.setName(request.getName());
+            if(request.getPartNumber() != null)
+                lesson.setPartNumber(request.getPartNumber());
+            lessonRepository.save(lesson);
 
             String articleId = lesson.getType_id();
             if(Objects.equals(lesson.getType(), "ARTICLE")) {

@@ -1,9 +1,7 @@
 package com.sunny.microservices.payment.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sunny.microservices.basedomain.payment.dto.InitPaymentRequest;
-import com.sunny.microservices.basedomain.payment.dto.InitPaymentResponse;
+import com.sunny.microservices.basedomain.event.InitPaymentResponse;
 import com.sunny.microservices.payment.constant.Locale;
 import com.sunny.microservices.payment.constant.Symbol;
 import com.sunny.microservices.payment.constant.Currency;
@@ -16,7 +14,6 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.apache.http.client.utils.URIBuilder;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;

@@ -1,5 +1,6 @@
 package com.sunny.microservices.course.service.course;
 
+import com.sunny.microservices.basedomain.course.dto.response.CourseLearningResponse;
 import com.sunny.microservices.course.dto.request.course.TargetAndRequireRequest;
 import com.sunny.microservices.course.dto.response.course.TargetAndRequireResponse;
 import com.sunny.microservices.course.entity.Course;

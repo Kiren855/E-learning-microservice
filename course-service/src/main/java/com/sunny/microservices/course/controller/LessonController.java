@@ -48,6 +48,17 @@ public class LessonController {
       return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @PutMapping("/video")
+    @PreAuthorize("hasRole('INSTRUCTOR')")
+    public ResponseEntity<ApiResponse<String>> updateVideo(@RequestParam String sectionId,
+                                                           @RequestParam String lessonId,
+                                                           @ModelAttribute VideoLessonRequest request) {
+        ApiResponse<String>  response = ApiResponse.<String>builder()
+                .message(lessonService.updateVideoLesson(sectionId, lessonId, request)).build();
+
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
     //////////////// DOCUMENT /////////////////////////////////////////////
     @PostMapping("/doc/{sectionId}")
     @PreAuthorize("hasRole('INSTRUCTOR')")

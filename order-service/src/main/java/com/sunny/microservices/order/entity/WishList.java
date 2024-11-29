@@ -22,6 +22,7 @@ public class WishList {
     @Indexed
     String userId;
     String courseId;
+    String image;
     String instructorName;
     String courseName;
     Integer price;

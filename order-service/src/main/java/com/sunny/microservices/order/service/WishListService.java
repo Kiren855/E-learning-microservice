@@ -42,6 +42,8 @@ public class WishListService {
             WishList newWish = WishList.builder()
                     .userId(userId)
                     .courseId(request.getCourseId())
+                    .image(request.getImage())
+                    .instructorName(request.getInstructorName())
                     .courseName(request.getCourseName())
                     .price(request.getPrice()).build();
             wishListRepository.save(newWish);
@@ -50,6 +52,8 @@ public class WishListService {
                     .id(newWish.getId())
                     .userId(newWish.getUserId())
                     .courseId(newWish.getCourseId())
+                    .image(newWish.getImage())
+                    .courseName(newWish.getCourseName())
                     .instructorName(newWish.getInstructorName())
                     .price(newWish.getPrice()).build();
         }
@@ -73,13 +77,14 @@ public class WishListService {
         String userId = authentication.getName();
 
         List<WishList> wishs = wishListRepository.findByUserId(userId);
-        List<AWishResponse> wishResponses = wishs.stream().map(cart -> AWishResponse.builder()
-                .id(cart.getId())
-                .courseId(cart.getCourseId())
-                .userId(cart.getUserId())
-                .instructorName(cart.getInstructorName())
-                .courseName(cart.getCourseName())
-                .price(cart.getPrice()).build()).toList();
+        List<AWishResponse> wishResponses = wishs.stream().map(wish -> AWishResponse.builder()
+                .id(wish.getId())
+                .courseId(wish.getCourseId())
+                .userId(wish.getUserId())
+                .image(wish.getImage())
+                .instructorName(wish.getInstructorName())
+                .courseName(wish.getCourseName())
+                .price(wish.getPrice()).build()).toList();
 
         return WishListResponse.builder().wishList(Objects.requireNonNullElseGet(wishResponses, ArrayList::new)).build();
     }
@@ -87,12 +92,13 @@ public class WishListService {
     public String changeToCart(String courseId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();
-
+        log.info("courseID {}", courseId);
         Optional<WishList> wish = wishListRepository.findByUserIdAndCourseId(userId, courseId);
         if (wish.isPresent()) {
             Cart cart = Cart.builder()
                     .userId(userId)
                     .courseId(courseId)
+                    .image(wish.get().getImage())
                     .instructorName(wish.get().getInstructorName())
                     .courseName(wish.get().getCourseName())
                     .price(wish.get().getPrice()).build();

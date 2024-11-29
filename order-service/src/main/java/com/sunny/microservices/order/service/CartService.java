@@ -42,6 +42,7 @@ public class CartService {
         }else {
             Cart newCart = Cart.builder()
                     .userId(userId)
+                    .image(request.getImage())
                     .instructorName(request.getInstructorName())
                     .courseId(request.getCourseId())
                     .courseName(request.getCourseName())
@@ -52,6 +53,7 @@ public class CartService {
                     .id(newCart.getId())
                     .userId(newCart.getUserId())
                     .courseId(newCart.getCourseId())
+                    .image(newCart.getImage())
                     .instructorName(newCart.getInstructorName())
                     .courseName(newCart.getCourseName())
                     .price(newCart.getPrice()).build();
@@ -80,6 +82,7 @@ public class CartService {
                 .id(cart.getId())
                 .courseId(cart.getCourseId())
                 .userId(cart.getUserId())
+                .image(cart.getImage())
                 .instructorName(cart.getInstructorName())
                 .courseName(cart.getCourseName())
                 .price(cart.getPrice()).build()).toList();
@@ -95,6 +98,7 @@ public class CartService {
             WishList wish = WishList.builder()
                     .userId(userId)
                     .courseId(courseId)
+                    .image(cart.get().getImage())
                     .instructorName(cart.get().getInstructorName())
                     .courseName(cart.get().getCourseName())
                     .price(cart.get().getPrice()).build();
