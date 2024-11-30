@@ -7,6 +7,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -28,11 +29,9 @@ public class CoursePreviewResponse  implements Serializable {
     Double rating;
     String language;
     Integer price;
-    Double discount;
-    String welcome;
-    String congratulation;
     List<ReviewDetail> reviews;
     List<String> targetAudiences;
     List<String> requirements;
     List<SectionPreview> sections;
+    LocalDateTime updatedAt;
 }

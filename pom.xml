@@ -13,13 +13,13 @@
     <packaging>pom</packaging>
     <name>e-learning-microservices</name>
     <modules>
-        <module>user-service</module>
-        <module>course-service</module>
-        <module>notification-service</module>
+<!--        <module>user-service</module>-->
+<!--        <module>course-service</module>-->
+<!--        <module>notification-service</module>-->
         <module>base-domain</module>
         <module>learning-service</module>
-        <module>order-service</module>
-        <module>payment-service</module>
+<!--        <module>order-service</module>-->
+<!--        <module>payment-service</module>-->
     </modules>
     <properties>
         <java.version>21</java.version>

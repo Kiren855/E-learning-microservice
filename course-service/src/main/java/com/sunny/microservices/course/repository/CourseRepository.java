@@ -12,4 +12,6 @@ public interface CourseRepository extends MongoRepository<Course, String> {
     void updateSections(String courseId, ObjectId sectionId);
 
     List<Course> findByInstructorId(String instructor);
+
+    List<Course> findByMainTopic(String topicId);
 }

@@ -1,21 +1,37 @@
 package com.sunny.microservices.learning.service;
 
-import com.sunny.microservices.basedomain.course.dto.response.CourseLearningResponse;
-import com.sunny.microservices.learning.client.CourseClient;
+import com.sunny.microservices.learning.dto.response.CourseEnrolledResponse;
+import com.sunny.microservices.learning.entity.Enrollment;
+import com.sunny.microservices.learning.repository.EnrollmentRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.Cacheable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class LearningService {
-        CourseClient courseClient;
-        public CourseLearningResponse getDetailCourseForLearning(String courseId) {
-            return courseClient.getCourseDetail(courseId);
-        }
+    EnrollmentRepository enrollmentRepository;
+
+    public List<CourseEnrolledResponse> getCourseEnrolleds() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userId = authentication.getName();
+
+        List<Enrollment> enrollments = enrollmentRepository.findByUserId(userId);
+
+        return enrollments.stream().map(enrolled-> CourseEnrolledResponse.builder()
+                .courseId(enrolled.getCourseId())
+                .courseName(enrolled.getCourseName())
+                .instructorName(enrolled.getInstructorName())
+                .image(enrolled.getImage())
+                .completionRate(enrolled.getProgress().getCompletionRate()).build())
+                .toList();
+    }
 }

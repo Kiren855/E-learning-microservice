@@ -40,6 +40,7 @@ public class OrderService {
                 .courseId(cart.getCourseId())
                 .instructorName(cart.getInstructorName())
                 .courseName(cart.getCourseName())
+                .image(cart.getImage())
                 .price(cart.getPrice()).build()).toList();
 
         Integer totalPrice = carts.stream().mapToInt(ACartResponse::getPrice).sum();
@@ -60,6 +61,7 @@ public class OrderService {
 
         OrderDto orderDto = OrderDto.builder()
                 .userId(userId)
+                .price(totalPrice)
                 .build();
 
         return OrderResponse.builder()

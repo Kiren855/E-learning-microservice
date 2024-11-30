@@ -49,6 +49,7 @@ public class PaymentController {
             List<PaymentEvent.Course> courses = paymentHistory.getCourses().stream().map(
                     course -> PaymentEvent.Course.builder()
                             .courseId(course.getCourseId())
+                            .image(course.getImage())
                             .instructorName(course.getInstructorName())
                             .courseName(course.getCourseName()).build()
             ).toList();
