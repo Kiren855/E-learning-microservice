@@ -34,6 +34,7 @@ public class InitPaymentRequest {
         String courseId;
         String courseName;
         String instructorName;
+        String image;
         Integer price;
     }
 }

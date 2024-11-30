@@ -33,7 +33,7 @@ public class CourseCreateService {
         course.setPrice(0);
         course.setSections(new ArrayList<>());
         course.setIsDraft(Boolean.TRUE);
-
+        course.setRating(0.0);
         courseRepository.save(course);
 
         courseProcessingService.processUpdateInstructorInCourse(userId, course);

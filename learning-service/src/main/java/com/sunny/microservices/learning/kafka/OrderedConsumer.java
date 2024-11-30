@@ -36,6 +36,8 @@ public class OrderedConsumer {
         Enrollment enrollment = Enrollment.builder()
                 .userId(event.getUserId())
                 .courseId(course.getCourseId())
+                .image(course.getImage())
+                .courseName(course.getCourseName())
                 .instructorName(course.getInstructorName())
                 .enrollmentDate(Date.from(ZonedDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh")).toInstant()))
                 .status("ĐANG HỌC")

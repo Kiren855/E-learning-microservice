@@ -26,5 +26,6 @@ public class PaymentEvent {
         String courseId;
         String instructorName;
         String courseName;
+        String image;
     }
 }

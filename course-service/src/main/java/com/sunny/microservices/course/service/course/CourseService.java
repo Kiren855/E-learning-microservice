@@ -55,11 +55,9 @@ public class CourseService {
                 .rating(course.getRating())
                 .language(course.getLanguage())
                 .price(course.getPrice())
-                .discount(course.getDiscount())
                 .targetAudiences(course.getTargetAudiences())
                 .requirements(course.getRequirements())
-                .welcome(course.getWelcome())
-                .congratulation(course.getCongratulation())
+                .updatedAt(course.getUpdatedAt())
                 .build();
 
         if(course.getMainTopic() == null) {
@@ -85,7 +83,7 @@ public class CourseService {
             coursePreviewResponse.setSections(sections);
         }
 
-        if(course.getReviews().isEmpty())
+        if(course.getReviews() == null || course.getReviews().isEmpty())
             coursePreviewResponse.setReviews(new ArrayList<>());
         else {
             List<ReviewDetail> reviews = reviewService.findReviewsById(course.getReviews());
