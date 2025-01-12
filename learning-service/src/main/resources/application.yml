@@ -1,0 +1,53 @@
+server:
+  port: 8082
+  servlet:
+    context-path: /learning
+
+spring:
+  application:
+    name: learning-service
+  data:
+    mongodb:
+      uri: mongodb+srv://admin:7Fu8C1gbpjNMY9PQ@cluster0.fb5e0r9.mongodb.net/learning-service
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://bugbuster.click/realms/sunny
+  kafka:
+    bootstrap-servers: "edumanabo-event.servicebus.windows.net:9093"
+    properties:
+      security:
+        protocol: SASL_SSL
+      sasl:
+        mechanism: PLAIN
+        jaas:
+          config: "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"$ConnectionString\" password=\"Endpoint=sb://edumanabo-event.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=5NTRRP13oNjjKdiuVdlODLnkcRU1dpQPx+AEhAr6HCU=\";"
+
+    consumer:
+      group-id: "learning-consumer-group"
+      enable-auto-commit: true
+      auto-commit-interval: 1000
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "com.sunny.microservices.basedomain.event"
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+idp:
+  url: https://bugbuster.click
+  client-id: sunny_app
+  client-secret: p1q9lg1SZD2IoSSxD4EyuFYMGNQ735MJ
+
+course-service:
+  url: https://course-service.ambitiousbush-9297f82e.southeastasia.azurecontainerapps.io/course/
+
+logging:
+  level:
+    org.apache.kafka: WARN
+    org.apache.kafka.clients: WARN
+    org.apache.kafka.common: WARN
+    org.apache.kafka.clients.consumer: WARN

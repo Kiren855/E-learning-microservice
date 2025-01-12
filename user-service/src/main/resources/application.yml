@@ -1,0 +1,28 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /user
+spring:
+  application:
+    name: user-service
+  data:
+    mongodb:
+      uri: mongodb+srv://admin:7Fu8C1gbpjNMY9PQ@cluster0.fb5e0r9.mongodb.net/user-service
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://bugbuster.click/realms/sunny
+
+  cloud:
+    azure:
+      storage:
+        account-name: sunnystorage855
+        account-key: jAZ/U552yytV/lE26idYXNq5OUCn7809visvtDfPbH9lTZ3Jbi571NNVPp1vDMp2ebx+8g9U7lb++AStf/LKGA==
+
+
+idp:
+  url: https://bugbuster.click
+  client-id: sunny_app
+  client-secret: spEMSXyjRqVWgHGaT4ORA4stxaRq0Cko

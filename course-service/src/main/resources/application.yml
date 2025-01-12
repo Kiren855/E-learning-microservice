@@ -1,0 +1,103 @@
+server:
+  port: 8081
+  servlet:
+    context-path: /course
+  forward-headers-strategy: framework
+spring:
+  application:
+    name: course-service
+  data:
+    mongodb:
+      uri: mongodb+srv://admin:7Fu8C1gbpjNMY9PQ@cluster0.fb5e0r9.mongodb.net/course-service
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://bugbuster.click/realms/sunny
+
+  redis:
+    host: elearning.redis.cache.windows.net
+    port: 6380
+    password: ""
+    ssl: true
+
+  cloud:
+    azure:
+      storage:
+        account-name: sunnystorage855
+        account-key: jAZ/U552yytV/lE26idYXNq5OUCn7809visvtDfPbH9lTZ3Jbi571NNVPp1vDMp2ebx+8g9U7lb++AStf/LKGA==
+
+  servlet:
+    multipart:
+      max-file-size: 500MB
+      max-request-size: 510MB
+
+  kafka:
+    bootstrap-servers: "edumanabo-event.servicebus.windows.net:9093"
+    topic:
+      lesson-created: "lesson-created"
+      submit-course: "submit-course"
+      approve-course: "approve-course"
+      reject-course: "reject-course"
+    properties:
+      security:
+        protocol: SASL_SSL
+      sasl:
+        mechanism: PLAIN
+        jaas:
+          config: "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"$ConnectionString\" password=\"Endpoint=sb://edumanabo-event.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=5NTRRP13oNjjKdiuVdlODLnkcRU1dpQPx+AEhAr6HCU=\";"
+
+    consumer:
+      group-id: "course-consumer-group"
+      auto-offset-reset: latest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "com.sunny.microservices.basedomain.event"
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+idp:
+  url: https://bugbuster.click
+  client-id: sunny_app
+  client-secret: spEMSXyjRqVWgHGaT4ORA4stxaRq0Cko
+
+azure:
+  blob:
+    video-container: video-lesson-container
+    doc-container: doc-lesson-container
+    thumbnail-container: thumbnail-container
+
+logging:
+  level:
+    org.apache.kafka: WARN
+    org.apache.kafka.clients: WARN
+    org.apache.kafka.common: WARN
+    org.apache.kafka.clients.consumer: WARN
+
+user-service:
+  url: https://user-service.ambitiousbush-9297f82e.southeastasia.azurecontainerapps.io/user
+
+springdoc:
+  api-docs:
+    enabled: true
+
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    operations-sorter: alpha
+    tags-sorter: alpha
+    display-request-duration: true
+    try-it-out-enabled: true
+    oauth:
+      client-id: sunny_app
+      client-secret: spEMSXyjRqVWgHGaT4ORA4stxaRq0Cko
+
+  default-security-scheme:
+    type: http
+    scheme: bearer
+    bearer-format: JWT
+
+  security-scheme-name: BearerAuth
