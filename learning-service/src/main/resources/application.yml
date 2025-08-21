@@ -1,0 +1,53 @@
+server:
+  port: 8082
+  servlet:
+    context-path: /learning
+
+spring:
+  application:
+    name: learning-service
+  data:
+    mongodb:
+      uri: ${LEARNING_DB_URL}
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${ISSUER_URL}
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+    properties:
+      security:
+        protocol: SASL_SSL
+      sasl:
+        mechanism: PLAIN
+        jaas:
+          config: ${KAFKA_CONNECT}
+
+    consumer:
+      group-id: "learning-consumer-group"
+      enable-auto-commit: true
+      auto-commit-interval: 1000
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "com.sunny.microservices.basedomain.event"
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+idp:
+  url: ${KEYCLOAK_URL}
+  client-id: ${KEYCLOAK_CLIENT_ID}
+  client-secret: ${KEYCLOAK_CLIENT_SECRET}
+
+course-service:
+  url: ${COURSE_SERVICE_URL}
+
+logging:
+  level:
+    org.apache.kafka: WARN
+    org.apache.kafka.clients: WARN
+    org.apache.kafka.common: WARN
+    org.apache.kafka.clients.consumer: WARN
