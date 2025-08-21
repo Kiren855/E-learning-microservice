@@ -1,0 +1,28 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /user
+spring:
+  application:
+    name: user-service
+  data:
+    mongodb:
+      uri: ${USER_DB_URL}
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${ISSUER_URI}
+
+  cloud:
+    azure:
+      storage:
+        account-name: ${AZURE_STORAGE_NAME}
+        account-key: ${AZURE_STORAGE_KEY}
+
+
+idp:
+  url: ${KEYCLOAK_URL}
+  client-id: ${KEYCLOAK_CLIENT_ID}
+  client-secret: ${KEYCLOAK_CLIENT_SECRET}
