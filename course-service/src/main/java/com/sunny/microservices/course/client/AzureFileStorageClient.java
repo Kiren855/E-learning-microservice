@@ -4,6 +4,7 @@ import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.models.BlobHttpHeaders;
+import com.azure.storage.blob.models.BlobItem;
 import com.azure.storage.blob.models.BlobStorageException;
 import com.sunny.microservices.course.exception.AppException;
 import com.sunny.microservices.course.exception.ErrorCode;
@@ -105,6 +106,21 @@ public class AzureFileStorageClient implements FileStorageClient {
             } else {
                 throw new AppException(ErrorCode.FILE_NOT_FOUND);
             }
+        } catch (BlobStorageException e) {
+            throw new AppException(ErrorCode.FILE_CANNOT_DELETE);
+        }
+    }
+
+    @Override
+    public void deleteDirectory(String containerName, String blobFolder) {
+        try {
+            BlobContainerClient containerClient = blobServiceClient.getBlobContainerClient(containerName);
+
+            containerClient.listBlobsByHierarchy(blobFolder + "/").forEach(blobItem -> {
+                BlobClient blobClient = containerClient.getBlobClient(blobItem.getName());
+                blobClient.delete();
+            });
+
         } catch (BlobStorageException e) {
             throw new AppException(ErrorCode.FILE_CANNOT_DELETE);
         }

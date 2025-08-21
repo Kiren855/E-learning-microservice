@@ -7,4 +7,5 @@ public interface FileStorageClient {
 
     String uploadDirectory(String containerName, String directoryPath, String blobFolder);
     void deleteFile(String containerName, String fileName);
+    void deleteDirectory(String containerName, String directoryPath);
 }

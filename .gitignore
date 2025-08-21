@@ -6,3 +6,7 @@ target/
 ./volume-data
 
 /data
+
+Dockerfile
+
+user-service/Dockerfile

@@ -33,7 +33,6 @@ public class IdentityService {
     UserRepository userRepository;
     IdentityClient identityClient;
     ErrorNormalizer errorNormalizer;
-    AvatarRepository avatarRepository;
     @Value("${idp.client-id}")
     @NonFinal
     String clientId;

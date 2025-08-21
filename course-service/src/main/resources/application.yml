@@ -46,6 +46,12 @@ idp:
   client-id: ${KEYCLOAK_CLIENT_ID}
   client-secret: ${KEYCLOAK_CLIENT_SECRET}
 
+azure:
+  blob:
+    video-container-name: "video-lesson-container"
+    doc-container-name: "doc-lesson-container"
+    thumbnail-container-name: "thumbnail-container"
+
 user-service:
   url: ${USER_SERVICE_URL}
 

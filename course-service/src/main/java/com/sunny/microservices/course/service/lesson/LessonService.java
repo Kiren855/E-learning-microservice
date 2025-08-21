@@ -81,9 +81,9 @@ public class LessonService {
                 Video video = videoRepository.findById(lesson.getType_id())
                         .orElseThrow(() -> new AppException(ErrorCode.VIDEO_NOT_FOUND));
 
-                String videoFileUrl = extractFileName(video.getVideoUrl());
+                String blobName = "lesson_" + lessonId;
                 String thumbnailUrl = extractFileName(video.getThumbnailUrl());
-                azureFileStorageClient.deleteFile(videoContainer, videoFileUrl);
+                azureFileStorageClient.deleteDirectory(videoContainer, blobName);
                 azureFileStorageClient.deleteFile(thumbnailContainer, thumbnailUrl);
 
                 section.setDuration(section.getDuration() - video.getDuration());
@@ -182,7 +182,7 @@ public class LessonService {
                     Double duration = request.getDuration();
                     MultipartFile videoFile = request.getVideoFile();
                     String videoName = videoFile.getOriginalFilename();
-                    lessonProcessingService.processUpdateVideo(section, video, videoName,
+                    lessonProcessingService.processUpdateVideo(section, lesson, video, videoName,
                             IOUtils.toByteArray(videoFile.getInputStream()), duration);
                 }
 
