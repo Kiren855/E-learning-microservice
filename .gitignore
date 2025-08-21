@@ -3,5 +3,5 @@
 target/
 *.log
 
-**/application.yml
+./volume-data
 

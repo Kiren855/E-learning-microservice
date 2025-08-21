@@ -11,7 +11,11 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
+
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStream;
+import java.util.Objects;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -41,6 +45,37 @@ public class AzureFileStorageClient implements FileStorageClient {
         }
     }
 
+    @Override
+    public String uploadDirectory(String containerName, String directoryPath, String blobFolder) {
+        BlobContainerClient blobContainerClient = blobServiceClient.getBlobContainerClient(containerName);
+        File directory = new File(directoryPath);
+
+        if (!directory.exists() || !directory.isDirectory()) {
+            throw new AppException(ErrorCode.FILE_INVALID);
+        }
+
+        for (File file : Objects.requireNonNull(directory.listFiles())) {
+            try (InputStream data = new FileInputStream(file)) {
+                String fileName = file.getName();
+                String fileExtension = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
+                String contentType = getContentType(fileExtension);
+
+                String blobPath = blobFolder + "/" + fileName;
+
+                BlobClient blobClient = blobContainerClient.getBlobClient(blobPath);
+                BlobHttpHeaders headers = new BlobHttpHeaders().setContentType(contentType);
+
+                blobClient.upload(data, file.length(), true);
+                blobClient.setHttpHeaders(headers);
+
+            } catch (Exception e) {
+                throw new AppException(ErrorCode.FILE_CANNOT_UPLOAD);
+            }
+        }
+
+        return blobContainerClient.getBlobClient(blobFolder + "/master.m3u8").getBlobUrl();
+    }
+
     private String getContentType(String fileExtension) {
         return switch (fileExtension) {
             case "mp4" -> "video/mp4";
@@ -51,6 +86,9 @@ public class AzureFileStorageClient implements FileStorageClient {
             case "pdf" -> "application/pdf";
             case "doc" -> "application/msword";
             case "docx" -> "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+            case "m3u8" -> "application/x-mpegURL";
+            case "ts" -> "video/mp2t";
+            case "m4s" -> "video/iso.segment";
             default -> "application/octet-stream";
         };
     }

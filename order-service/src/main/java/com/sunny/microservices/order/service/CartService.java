@@ -9,6 +9,7 @@ import com.sunny.microservices.order.entity.WishList;
 import com.sunny.microservices.order.exception.AppException;
 import com.sunny.microservices.order.exception.ErrorCode;
 import com.sunny.microservices.order.repository.CartRepository;
+import com.sunny.microservices.order.repository.PaymentStatusRepository;
 import com.sunny.microservices.order.repository.WishListRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -32,14 +32,18 @@ import java.util.stream.Collectors;
 public class CartService {
     CartRepository cartRepository;
     WishListRepository wishListRepository;
+    PaymentStatusRepository paymentStatusRepository;
     public ACartResponse addCourseToCart(CartCourseRequest request) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();
 
-        Optional<Cart> cart = cartRepository.findByUserIdAndCourseId(userId, request.getCourseId());
-        if(cart.isPresent()) {
-             throw new AppException(ErrorCode.COURSE_EXISTS);
-        }else {
+        if(paymentStatusRepository.existsByUserIdAndCourseId(userId, request.getCourseId())) {
+            throw new AppException(ErrorCode.COURSE_HAD_PAID);
+        } else if (wishListRepository.existsByUserIdAndCourseId(userId, request.getCourseId())) {
+            throw new AppException(ErrorCode.COURSE_EXIST_IN_WISHLIST);
+        } else if (cartRepository.existsByUserIdAndCourseId(userId, request.getCourseId())) {
+            throw new AppException(ErrorCode.COURSE_EXIST_IN_CART);
+        } else {
             Cart newCart = Cart.builder()
                     .userId(userId)
                     .image(request.getImage())
@@ -94,6 +98,10 @@ public class CartService {
         String userId = authentication.getName();
 
         Optional<Cart> cart = cartRepository.findByUserIdAndCourseId(userId, courseId);
+
+        if(wishListRepository.existsByUserIdAndCourseId(userId, courseId)) {
+            throw new AppException(ErrorCode.COURSE_EXIST_IN_WISHLIST);
+        }
         if (cart.isPresent()) {
             WishList wish = WishList.builder()
                     .userId(userId)
@@ -107,7 +115,7 @@ public class CartService {
         }else {
             throw new AppException(ErrorCode.COURSE_NOT_EXISTS);
         }
-        return "Chuyển khoá học vào giỏ hàng thành công";
+        return "Chuyển khoá học vào danh sách ước thành công";
     }
 
     @Transactional

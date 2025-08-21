@@ -1,5 +1,5 @@
-course-service/
-order-service/
-user-service/
+learning-service/
 payment-service/
+user-service/
+order-service/
 notification-service/

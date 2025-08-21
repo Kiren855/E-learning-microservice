@@ -7,7 +7,7 @@ COPY . .
 
 RUN mvn clean install -DskipTests
 
-WORKDIR /app/learning-service
+WORKDIR /app/course-service
 
 RUN mvn package -DskipTests
 
@@ -16,6 +16,6 @@ FROM amazoncorretto:21.0.4
 
 WORKDIR /app
 
-COPY --from=build /app/learning-service/target/*.jar app.jar
+COPY --from=build /app/course-service/target/*.jar app.jar
 
 ENTRYPOINT ["java", "-jar", "app.jar"]

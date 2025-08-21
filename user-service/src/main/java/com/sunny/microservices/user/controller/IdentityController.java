@@ -37,15 +37,11 @@ public class IdentityController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody @Valid LoginRequest request) {
-        try{
             ApiResponse<?> response = ApiResponse.builder()
                     .message("Đăng nhập thành công")
                     .result(identityService.login(request))
                     .build();
-            return  ResponseEntity.status(HttpStatus.OK).body(response);
-        }catch (Exception e){
-            throw new AppException(ErrorCode.ERROR_ACCOUNT);
-        }
+            return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @PostMapping("/refreshToken")

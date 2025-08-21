@@ -44,6 +44,7 @@ public class IdentityService {
 
     public String register(RegistrationRequest request) {
         try {
+
             var token = identityClient.exchangeToken(TokenExchangeParam.builder()
                     .grant_type("client_credentials")
                     .client_id(clientId)
@@ -51,6 +52,7 @@ public class IdentityService {
                     .scope("openid")
                     .build());
 
+            log.info("token {}", token);
             var creationResponse = identityClient.createUser(
                     "Bearer " + token.getAccessToken(),
                     UserCreationParam.builder()
@@ -77,13 +79,13 @@ public class IdentityService {
                     .dob(request.getDob())
                     .build();
 
-            String firstLetter = request.getUsername().substring(0, 1).toUpperCase();
-            Avatar avatar = avatarRepository.findByName(firstLetter)
-                    .orElseThrow(()-> new AppException(ErrorCode.AVATAR_NOT_FOUND));
+//            String firstLetter = request.getUsername().substring(0, 1).toUpperCase();
+//            Avatar avatar = avatarRepository.findByName(firstLetter)
+//                    .orElseThrow(()-> new AppException(ErrorCode.AVATAR_NOT_FOUND));
 
             profile.setUserId(userId);
             profile.setGoogleId("");
-            profile.setAvatar(avatar.getImage());
+            profile.setAvatar("");
             profile.setIntroduce("chưa có thông tin gì để giới thiệu");
             userRepository.save(profile);
 
@@ -95,28 +97,33 @@ public class IdentityService {
     }
 
     public Object login(LoginRequest request){
-            try {
-                var clientToken = identityClient.exchangeToken(TokenExchangeParam.builder()
-                        .grant_type("client_credentials")
-                        .client_id(clientId)
-                        .client_secret(clientSecret)
-                        .scope("openid")
-                        .build());
+        try {
+            var clientToken = identityClient.exchangeToken(TokenExchangeParam.builder()
+                    .grant_type("client_credentials")
+                    .client_id(clientId)
+                    .client_secret(clientSecret)
+                    .scope("openid")
+                    .build());
 
-                return identityClient.login(
-                        "Bearer " + clientToken.getAccessToken(),
-                        TokenExchangeParam.builder()
-                        .grant_type("password")
-                        .client_id(clientId)
-                        .client_secret(clientSecret)
-                        .username(request.getEmail())
-                        .password(request.getPassword())
-                        .scope("openid")
-                        .build()).getBody();
+            System.out.println("Client Token: " + clientToken);  // Log token
 
-            }catch (FeignException exception) {
-                throw new AppException(ErrorCode.ERROR_ACCOUNT);
-            }
+            var loginResponse = identityClient.login(
+                    "Bearer " + clientToken.getAccessToken(),
+                    TokenExchangeParam.builder()
+                            .grant_type("password")
+                            .client_id(clientId)
+                            .client_secret(clientSecret)
+                            .username(request.getEmail())
+                            .password(request.getPassword())
+                            .scope("openid")
+                            .build()).getBody();
+
+            return loginResponse;
+        } catch (FeignException exception) {
+            exception.printStackTrace();  // Log exception details
+            throw new AppException(ErrorCode.ERROR_ACCOUNT);
+        }
+
     }
 
     public Object refreshToken(TokenRequest request) {

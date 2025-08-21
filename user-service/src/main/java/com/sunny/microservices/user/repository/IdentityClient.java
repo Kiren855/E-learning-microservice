@@ -26,6 +26,6 @@ public interface IdentityClient {
     @PostMapping(value = "/realms/sunny/protocol/openid-connect/token", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     ResponseEntity<?> login(@RequestHeader("authorization") String token, @QueryMap TokenExchangeParam param);
 
-    @PostMapping(value = "/realms/sunny/protocol/openid-connect/logout", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+    @PostMapping(value = "/realms/sunny /protocol/openid-connect/logout", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     void logout(@RequestHeader("authorization") String token, @QueryMap TokenExchangeParam param);
 }

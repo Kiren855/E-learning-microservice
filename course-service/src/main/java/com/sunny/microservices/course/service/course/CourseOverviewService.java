@@ -37,7 +37,6 @@ public class CourseOverviewService {
     CourseRepository courseRepository;
     TopicService topicService;
     SectionService sectionService;
-    CourseService courseService;
     @Value("${azure.blob.doc-container}")
     @NonFinal
     String docContainer;

@@ -9,12 +9,16 @@ import com.sunny.microservices.course.dto.request.course.CourseRequest;
 import com.sunny.microservices.course.dto.response.IdResponse;
 import com.sunny.microservices.course.dto.response.course.CoursePreviewResponse;
 import com.sunny.microservices.course.dto.response.course.CourseResponse;
+import com.sunny.microservices.course.dto.response.course.CourseSearchResponse;
+import com.sunny.microservices.course.entity.Course;
 import com.sunny.microservices.course.service.course.CourseCreateService;
+import com.sunny.microservices.course.service.course.CourseSearchService;
 import com.sunny.microservices.course.service.course.CourseService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -32,6 +36,7 @@ public class CourseController {
 
     CourseService courseService;
     CourseCreateService courseCreateService;
+    CourseSearchService courseSearchService;
     @GetMapping("/preview/{courseId}")
     public ResponseEntity<ApiResponse<CoursePreviewResponse>> getCourse(@PathVariable String courseId) {
         ApiResponse<CoursePreviewResponse> response = ApiResponse.<CoursePreviewResponse>builder()
@@ -106,6 +111,15 @@ public class CourseController {
                 .result(courseService.getListSubmitCourse()).build();
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<Page<CourseSearchResponse>> searchCoursesByTitle(
+            @RequestParam String keyword,
+            @RequestParam(defaultValue = "0") int p
+    ) {
+        Page<CourseSearchResponse> result = courseSearchService.searchCourseByTitle(keyword, p);
+        return ResponseEntity.ok(result);
     }
 
 }
